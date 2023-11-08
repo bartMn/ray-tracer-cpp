@@ -5,6 +5,7 @@
 #include <cmath>
 #include "vector.h"  // Your 3D vector class
 #include "Ray.h"      // Your ray class
+#include "world.h"
 
 class Camera {
 public:
@@ -19,7 +20,7 @@ public:
 
     // Generate a ray for a given pixel (u, v) on the image plane
     //Ray getRay(double u, double v) const;
-    void render(int samplesPerPixel) const;
+    void render(int samplesPerPixel, World world) const;
 
 private:
     vec3 position;

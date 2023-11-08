@@ -1,10 +1,12 @@
 #define _USE_MATH_DEFINES  // Define this before including <cmath>
 #include <cmath>
+#include <limits>
 #include "vector.h"  // Your 3D vector class
 #include "Ray.h"      // Your ray class
 #include "Camera.h"
 #include <iostream>
 #include "color.h"
+#include "hittable.h"
 
 
 Camera::Camera(const vec3& position, const vec3& lookAt, const vec3& up,
@@ -77,7 +79,7 @@ void Camera::setCameraParameters(const vec3& position, const vec3& lookAt, const
     }
 }
 
-void Camera::render(int samplesPerPixel) const {
+void Camera::render(int samplesPerPixelm, World world) const {
         // Loop over each pixel in the image
     std::cout << "P3\n" << imageWidth << ' ' << imageHeight << "\n255\n";
 
@@ -87,17 +89,37 @@ void Camera::render(int samplesPerPixel) const {
 
             vec3 pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
             vec3 ray_direction = pixel_center - position;
+            Ray r(position, ray_direction, vec3(100,100,100));
+            HitRecord rec;
+            if (world.hit(r, 0.0, std::numeric_limits<double>::infinity(), rec)) { 
+                paintPixel(255, 255, 255);  
+            }
+            else paintPixel(0,0,0);
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            //vec3 pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
+            //vec3 ray_direction = pixel_center - position;
             //Ray r(position, ray_direction);
 
 
-            double r_val = ray_direction.x;
-            double g_val = ray_direction.y;
-            double b_val = ray_direction.z; 
+            //double r_val = ray_direction.x;
+            //double g_val = ray_direction.y;
+            //double b_val = ray_direction.z; 
             //auto r_val = double(i) / (imageWidth-1);
             //auto g_val = double(j) / (imageHeight-1);
             //auto b_val = 0; 
             //paintPixel(((255*double(j)/imageHeight)), 255*double(i)/imageWidth, double(0));
-            paintPixel(255*r_val, 0*255*g_val, 0*255*b_val);
+            //paintPixel(255*r_val, 0*255*g_val, 0*255*b_val);
             
         }
    }
