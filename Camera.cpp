@@ -29,7 +29,7 @@ void Camera::setCameraParameters(const vec3& position, const vec3& lookAt, const
     double halfHeight = tan(theta / 2);
 
     double viewport_height = 2 * halfHeight * focal_length;
-    auto viewport_width = viewport_height * (imageWidth/imageHeight);
+    double viewport_width = viewport_height * (double(imageWidth)/imageHeight);
 
     // Calculate the u,v,w unit basis vectors for the camera coordinate frame.
     w = (position - lookAt).return_unit();
@@ -42,7 +42,7 @@ void Camera::setCameraParameters(const vec3& position, const vec3& lookAt, const
 
     // Calculate the horizontal and vertical delta vectors from pixel to pixel.
     pixel_delta_u = viewport_u / imageWidth;
-    pixel_delta_v = viewport_v / halfHeight;
+    pixel_delta_v = viewport_v / imageHeight;
 
     // Calculate the location of the upper left pixel.
     vec3 viewport_upper_left = position - (focal_length * w) - viewport_u/2 - viewport_v/2;
@@ -61,10 +61,19 @@ void Camera::setCameraParameters(const vec3& position, const vec3& lookAt, const
     
     printf("u = \t\t");
     vec3::printVector(u);
-    
-    
+
     printf("v = \t\t");
     vec3::printVector(v);
+    
+    printf("pixel_delta_u = ");
+    vec3::printVector(pixel_delta_u);
+    
+    printf("pixel_delta_v = ");
+    vec3::printVector(pixel_delta_v);
+    
+    printf("pixel00_loc = ");
+    vec3::printVector(pixel00_loc);
+    
     }
 }
 
@@ -81,13 +90,14 @@ void Camera::render(int samplesPerPixel) const {
             //Ray r(position, ray_direction);
 
 
-            auto r_val = ray_direction.x;
-            auto g_val = ray_direction.y;
-            auto b_val = ray_direction.z; 
+            double r_val = ray_direction.x;
+            double g_val = ray_direction.y;
+            double b_val = ray_direction.z; 
             //auto r_val = double(i) / (imageWidth-1);
             //auto g_val = double(j) / (imageHeight-1);
             //auto b_val = 0; 
-            paintPixel(((255*double(j)/imageHeight)), 255*double(i)/imageWidth, double(0));
+            //paintPixel(((255*double(j)/imageHeight)), 255*double(i)/imageWidth, double(0));
+            paintPixel(255*r_val, 0*255*g_val, 0*255*b_val);
             
         }
    }

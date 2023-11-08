@@ -3,6 +3,7 @@
 
 
 int returnColVal(double in_val){
+    if (in_val < 0 ) in_val *= -1;
     if (in_val >255) return 255;
     else return int(in_val);
 }
