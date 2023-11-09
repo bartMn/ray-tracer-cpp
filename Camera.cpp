@@ -8,6 +8,21 @@
 #include "color.h"
 #include "hittable.h"
 
+#include <random>
+
+double random_double(double min, double max) {
+    static std::uniform_real_distribution<double> distribution(min, max);
+    static std::mt19937 generator;  // Mersenne Twister PRNG
+    return distribution(generator);
+}
+
+vec3 random_in_unit_sphere() {
+    while (true) {
+        vec3 p = vec3::random(-1, 1);
+        if (p.length_squared() >= 1) continue;
+        return p;
+    }
+}
 
 Camera::Camera(const vec3& position, const vec3& lookAt, const vec3& up,
                double fov, double aspectRatio, double aperture, double focusDistance, int imageWidth) {
@@ -50,36 +65,9 @@ void Camera::setCameraParameters(const vec3& position, const vec3& lookAt, const
     vec3 viewport_upper_left = position - (focal_length * w) - viewport_u/2 - viewport_v/2;
     pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
     
-    
-    if (0){
-    printf("camera position = ");
-    vec3::printVector(position);
-    
-    printf("camera lookAt = ");
-    vec3::printVector(lookAt);
-    
-    printf("w = \t\t");
-    vec3::printVector(w);
-    
-    printf("u = \t\t");
-    vec3::printVector(u);
-
-    printf("v = \t\t");
-    vec3::printVector(v);
-    
-    printf("pixel_delta_u = ");
-    vec3::printVector(pixel_delta_u);
-    
-    printf("pixel_delta_v = ");
-    vec3::printVector(pixel_delta_v);
-    
-    printf("pixel00_loc = ");
-    vec3::printVector(pixel00_loc);
-    
-    }
 }
 
-void Camera::render(int samplesPerPixelm, World world) const {
+void Camera::render(int samplesPerPixel, World world) const {
         // Loop over each pixel in the image
     std::cout << "P3\n" << imageWidth << ' ' << imageHeight << "\n255\n";
 
@@ -87,30 +75,33 @@ void Camera::render(int samplesPerPixelm, World world) const {
         std::clog << "\rScanlines remaining: " << (imageHeight - j) << ' ' << std::flush;
         for (int i = 0; i < imageWidth; ++i) {
 
-            vec3 pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
-            vec3 ray_direction = pixel_center - position;
-            Ray r(position, ray_direction, vec3(100,100,100));
-            HitRecord rec;
-            bool hit_return = world.hit(r, 0.0, std::numeric_limits<double>::infinity(), rec); 
-            if (hit_return) {
-                 
-                paintPixelNormalVec(rec.normal.x,
-                                    rec.normal.y,
-                                    rec.normal.z,
-                                    true);  
-            }
-            else paintPixelNormalVec(0,0,0, false);
+            vec3 pixel_color(0, 0, 0);
 
-            //vec3 pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
-            //vec3 ray_direction = pixel_center - position;
-            //Ray r(position, ray_direction, vec3(100,100,100));
-            //HitRecord rec;
-            //if (world.hit(r, 0.0, std::numeric_limits<double>::infinity(), rec)) { 
-            //    paintPixel(255, 255, 255);  
-            //}
-            //else paintPixel(0,0,0);
-            
+            for (int s = 0; s < samplesPerPixel; ++s) {
+                double u_offset = random_double(0,1);
+                double v_offset = random_double(0,1);
+
+                vec3 pixel_center = pixel00_loc + ((i + u_offset) * pixel_delta_u) + ((j + v_offset) * pixel_delta_v);
+
+                vec3 ray_direction = pixel_center - position;
+                Ray r(position, ray_direction.return_unit(), vec3(100, 100, 100));
+
+                HitRecord rec;
+                bool hit_return = world.hit(r, 0.0, std::numeric_limits<double>::infinity(), rec);
+
+                if (hit_return) {
+                    vec3 target = rec.p + rec.normal + random_in_unit_sphere();
+                    pixel_color += 0.5 * (target - rec.p).return_unit();
+                }
+            }
+
+            if (pixel_color.length() == 0) {
+                paintPixelNormalVec(0, 0, 0, false);
+            } else {
+                pixel_color /= samplesPerPixel;
+                paintPixelNormalVec(pixel_color.x, pixel_color.y, pixel_color.z, true);
+            }
         }
-   }
-   std::clog << "\rDone.                 \n";
+    }
+    std::clog << "\rDone.                 \n";
 }

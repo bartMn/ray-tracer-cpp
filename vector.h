@@ -20,6 +20,7 @@ public:
     // Static utility functions
     static double dot(const vec3& a, const vec3& b);
     static vec3 cross(const vec3& a, const vec3& b);
+    static vec3 random(double min, double max);
 
     // Vector operators
     vec3& operator+=(const vec3& other);

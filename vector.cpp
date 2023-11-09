@@ -2,10 +2,21 @@
 #include <cmath>
 #include <iostream>
 
+#include <random>
+
+double random_double_vec(double min, double max) {
+    static std::uniform_real_distribution<double> distribution(min, max);
+    static std::mt19937 generator;  // Mersenne Twister PRNG
+    return distribution(generator);
+}
+
 vec3::vec3() : x(0), y(0), z(0) {}
 vec3::vec3(double x, double y, double z) : x(x), y(y), z(z) {}
 double vec3::length() const {return std::sqrt(x * x + y * y + z * z);}
 double vec3::length_squared() const {return x * x + y * y + z * z;}
+
+
+
 
 void vec3::normalize() {
     double len = length();
@@ -14,6 +25,10 @@ void vec3::normalize() {
         y /= len;
         z /= len;
     }
+}
+
+vec3 vec3::random(double min, double max) {
+    return vec3(random_double_vec(min, max), random_double_vec(min, max), random_double_vec(min, max));
 }
 
 vec3 vec3::return_unit() {

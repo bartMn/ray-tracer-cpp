@@ -10,9 +10,12 @@ int main() {
     World world;
 
     // Create a sphere and add it to the world
-    Sphere mySphere(vec3(4, 0, +2), 2);
-    world.addHittable(std::make_shared<Sphere>(mySphere));
+    Sphere mySphere(vec3(5, 0, +2), 2);
+    Sphere mySphere1(vec3(2, 2, +1.5), 1.5);
     Sphere mySphere2(vec3(0, 0, -100), 100);
+
+    world.addHittable(std::make_shared<Sphere>(mySphere));
+    world.addHittable(std::make_shared<Sphere>(mySphere1));
     world.addHittable(std::make_shared<Sphere>(mySphere2));
 
 
@@ -31,6 +34,6 @@ int main() {
                512         //width
                );        
 
-    cam.render(1, world);
+    cam.render(10, world);
     return 0;
 }
