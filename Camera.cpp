@@ -91,12 +91,16 @@ void Camera::render(int samplesPerPixelm, World world) const {
             vec3 ray_direction = pixel_center - position;
             Ray r(position, ray_direction, vec3(100,100,100));
             HitRecord rec;
-            double hit_return = world.hit(r, 0.0, std::numeric_limits<double>::infinity(), rec); 
-            if (hit_return > 0) { 
-                paintPixel(255, 255, 255);  
+            bool hit_return = world.hit(r, 0.0, std::numeric_limits<double>::infinity(), rec); 
+            if (hit_return) {
+                 
+                paintPixelNormalVec(rec.normal.x,
+                                    rec.normal.y,
+                                    rec.normal.z,
+                                    true);  
             }
-            else paintPixel(0,0,0);
-            
+            else paintPixelNormalVec(0,0,0, false);
+
             //vec3 pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
             //vec3 ray_direction = pixel_center - position;
             //Ray r(position, ray_direction, vec3(100,100,100));

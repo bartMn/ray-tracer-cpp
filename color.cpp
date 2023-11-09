@@ -2,17 +2,19 @@
 #include "vector.h"
 #include <iostream>
 
-int returnColVal(double in_val){
-    if (in_val < 0 ) in_val *= -1;
+int returnColVal(double in_val, bool hit){
+    if (!hit) return 0;
+    in_val += 1;
+    in_val *= 100;
     if (in_val >255) return 255;
     else return int(in_val);
 }
 
-void paintPixel(double R, double G, double B)
+void paintPixelNormalVec(double R, double G, double B, bool hit)
 {
-    int ir = returnColVal(R);
-    int ig = returnColVal(G);
-    int ib = returnColVal(B); 
+    int ir = returnColVal(R, hit);
+    int ig = returnColVal(G, hit);
+    int ib = returnColVal(B, hit); 
     std::cout << ir << ' ' << ig << ' ' << ib << '\n';
 }
 

@@ -1,6 +1,6 @@
 #ifndef COLOR_H
 #define COLOR_H
 
-void paintPixel(double R, double G, double B);
+void paintPixelNormalVec(double R, double G, double B, bool hit);
 
 #endif
