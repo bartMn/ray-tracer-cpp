@@ -22,7 +22,7 @@
 CXX = g++
 CXXFLAGS = -std=c++11 -Wall
 
-SRC = main.cpp vector.cpp Ray.cpp Camera.cpp color.cpp Sphere.cpp World.cpp
+SRC = main.cpp vector.cpp Ray.cpp Camera.cpp color.cpp Sphere.cpp World.cpp triangle.cpp
 TARGET = a
 
 all: $(TARGET)

@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "vector.h"
 #include "Sphere.h"
+#include "triangle.h"
 //#include "cylinder.h"
 
 int main() {
@@ -14,9 +15,27 @@ int main() {
     Sphere mySphere1(vec3(2, 2, +1.5), 1.5);
     Sphere mySphere2(vec3(0, 0, -100), 100);
 
+    int half_floor_length = 10;
+    Triangle triangle(vec3(2, -2, 0),
+                      vec3(6, -5, 3),
+                      vec3(2, -2, 6));
+    Triangle triangle2(vec3(-half_floor_length, -half_floor_length, 0),
+                       vec3(half_floor_length, -half_floor_length, 0),
+                       vec3(half_floor_length, half_floor_length, 0));
+                       //vec3(half_floor_length, -half_floor_length, 0));
+    Triangle triangle3(vec3(-half_floor_length, -half_floor_length, 0),
+                       vec3(half_floor_length, half_floor_length, 0),
+                       vec3(-half_floor_length, half_floor_length, 0));
+    
+    
+
+    world.addHittable(std::make_shared<Triangle>(triangle));
+    world.addHittable(std::make_shared<Triangle>(triangle2));
+    world.addHittable(std::make_shared<Triangle>(triangle3));
+    
     world.addHittable(std::make_shared<Sphere>(mySphere));
     world.addHittable(std::make_shared<Sphere>(mySphere1));
-    world.addHittable(std::make_shared<Sphere>(mySphere2));
+    //world.addHittable(std::make_shared<Sphere>(mySphere2));
 
 
     //Cylinder myCylinder(vec3(4, 3, 0), 4, 2);
