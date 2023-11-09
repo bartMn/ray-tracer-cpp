@@ -3,21 +3,24 @@
 #include "Camera.h"
 #include "vector.h"
 #include "Sphere.h"
+#include "cylinder.h"
 
 int main() {
-    //double fov = 90; // Your field of view value
-    //double theta = fov * M_PI / 180;
+    
     World world;
 
     // Create a sphere and add it to the world
     Sphere mySphere(vec3(4, 0, 0), 2);
+    //Cylinder myCylinder(vec3(4, 3, 0), 4, 2);
+    
     world.addHittable(std::make_shared<Sphere>(mySphere));
+    //world.addHittable(std::make_shared<Cylinder>(myCylinder));
 
     // Rest of your code
     //std::cout << theta;
     Camera cam(vec3(-10,0,0), //position
                vec3(4,0,0), //lookAt
-               vec3(0,0,1), // up
+               vec3(0,1,0), // up
                45,          //fov
                1,//double(16)/9,           //aspectRatio
                1,           //aperture

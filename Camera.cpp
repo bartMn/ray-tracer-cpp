@@ -91,83 +91,22 @@ void Camera::render(int samplesPerPixelm, World world) const {
             vec3 ray_direction = pixel_center - position;
             Ray r(position, ray_direction, vec3(100,100,100));
             HitRecord rec;
-            if (world.hit(r, 0.0, std::numeric_limits<double>::infinity(), rec)) { 
+            double hit_return = world.hit(r, 0.0, std::numeric_limits<double>::infinity(), rec); 
+            if (hit_return > 0) { 
                 paintPixel(255, 255, 255);  
             }
             else paintPixel(0,0,0);
             
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
             //vec3 pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
             //vec3 ray_direction = pixel_center - position;
-            //Ray r(position, ray_direction);
-
-
-            //double r_val = ray_direction.x;
-            //double g_val = ray_direction.y;
-            //double b_val = ray_direction.z; 
-            //auto r_val = double(i) / (imageWidth-1);
-            //auto g_val = double(j) / (imageHeight-1);
-            //auto b_val = 0; 
-            //paintPixel(((255*double(j)/imageHeight)), 255*double(i)/imageWidth, double(0));
-            //paintPixel(255*r_val, 0*255*g_val, 0*255*b_val);
+            //Ray r(position, ray_direction, vec3(100,100,100));
+            //HitRecord rec;
+            //if (world.hit(r, 0.0, std::numeric_limits<double>::infinity(), rec)) { 
+            //    paintPixel(255, 255, 255);  
+            //}
+            //else paintPixel(0,0,0);
             
         }
    }
    std::clog << "\rDone.                 \n";
 }
-
-//Ray Camera::getRay(double u, double v) const {
-//    vec3 rd = lensRadius * randomInUnitDisk();
-//    vec3 offset = u * rd.x() + v * rd.y();
-//    return Ray(origin + offset, lowerLeftCorner + u * horizontal + v * vertical - origin - offset);
-//}
-//
-//class Renderer {
-//public:
-//    Renderer(int imageWidth, int imageHeight, int samplesPerPixel) 
-//        : imageWidth(imageWidth), imageHeight(imageHeight), samplesPerPixel(samplesPerPixel) {
-//        // Initialize your renderer with image dimensions and samples per pixel
-//        // Create a Camera instance with your desired parameters
-//        camera = Camera(/* camera parameters here */);
-//    }
-//
-//    void render() {
-//        // Create an image or framebuffer to store the rendered pixels
-//        // Loop over each pixel in the image
-//        for (int j = imageHeight - 1; j >= 0; --j) {
-//            for (int i = 0; i < imageWidth; ++i) {
-//                Color pixelColor(0, 0, 0);
-//
-//                for (int s = 0; s < samplesPerPixel; ++s) {
-//                    // Generate a ray through the pixel using the camera
-//                    double u = (i + randomDouble()) / (imageWidth - 1);
-//                    double v = (j + randomDouble()) / (imageHeight - 1);
-//                    Ray ray = camera.getRay(u, v);
-//
-//                    // Accumulate color by tracing the ray into the scene
-//                    pixelColor += rayColor(ray, /* your scene or hittable list */);
-//                }
-//
-//                // Output the final pixel color after averaging
-//                // This is a simple example; you might want gamma correction, etc.
-//                writeColor(pixelColor, samplesPerPixel);
-//            }
-//        }
-//    }
-//
-//private:
-//    Camera camera;
-//    int imageWidth;
-//    int imageHeight;
-//    int samplesPerPixel;
-//};//
