@@ -16,8 +16,6 @@ double vec3::length() const {return std::sqrt(x * x + y * y + z * z);}
 double vec3::length_squared() const {return x * x + y * y + z * z;}
 
 
-
-
 void vec3::normalize() {
     double len = length();
     if (len != 0) {
