@@ -7,7 +7,7 @@
 class Cylinder : public Hittable {
 public:
     Cylinder() {}
-    Cylinder(const vec3& center, double radius, double height) : center(center), radius(radius), height(height) {}
+    Cylinder(const vec3& center, double radius, double height, const vec3& axisNormal);
 
     virtual bool hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const override;
 
@@ -15,6 +15,7 @@ private:
     vec3 center;
     double radius;
     double height;
+    vec3 axisNormal; // New member variable for the cylinder's axis normal
 };
 
 #endif // CYLINDER_H
