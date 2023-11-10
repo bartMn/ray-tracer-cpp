@@ -37,33 +37,6 @@ bool Cylinder::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) con
         }
     }
 
-    // Check for intersection with the top and bottom surfaces
-    double t_top = (center.z + height - r.getOrigin().z) / r.getDirection().z;
-    double t_bottom = (center.z - r.getOrigin().z) / r.getDirection().z;
-
-    if (t_top < t_max && t_top > t_min) {
-        vec3 intersection_top = r.pointAtParameter(t_top);
-
-        // Check if the intersection point is within the circular top surface
-        if (intersection_top.x * intersection_top.x + intersection_top.y * intersection_top.y <= radius * radius) {
-            rec.t = t_top;
-            rec.p = intersection_top;
-            rec.normal = vec3(0, 0, 1);  // Dynamic normal calculation
-            return true;
-        }
-    }
-
-    if (t_bottom < t_max && t_bottom > t_min) {
-        vec3 intersection_bottom = r.pointAtParameter(t_bottom);
-
-        // Check if the intersection point is within the circular bottom surface
-        if (intersection_bottom.x * intersection_bottom.x + intersection_bottom.y * intersection_bottom.y <= radius * radius) {
-            rec.t = t_bottom;
-            rec.p = intersection_bottom;
-            rec.normal = vec3(0, 0, -1);  // Dynamic normal calculation
-            return true;
-        }
-    }
-
+ 
     return false;
 }

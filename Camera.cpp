@@ -87,7 +87,7 @@ void Camera::render(int samplesPerPixel, World world) const {
                 Ray r(position, ray_direction.return_unit(), vec3(100, 100, 100));
 
                 HitRecord rec;
-                bool hit_return = world.hit(r, 0.0, std::numeric_limits<double>::infinity(), rec);
+                bool hit_return = world.hit(r, 0.001, std::numeric_limits<double>::infinity(), rec);
 
                 if (hit_return) {
                     vec3 target = rec.p + rec.normal + random_in_unit_sphere();
