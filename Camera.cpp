@@ -9,6 +9,7 @@
 #include "hittable.h"
 
 #include <random>
+#include <fstream>
 
 double random_double(double min, double max) {
     static std::uniform_real_distribution<double> distribution(min, max);
@@ -28,6 +29,10 @@ Camera::Camera(const vec3& position, const vec3& lookAt, const vec3& up,
                double fov, double aspectRatio, double aperture, double focusDistance, int imageWidth) {
     setCameraParameters(position, lookAt, up, fov, aspectRatio, aperture, focusDistance, imageWidth);
 }
+
+//Camera::Camera() {
+//    setCameraParameters(vec3(0,0,0), vec3(0,0,0), vec3(0,0,0), 1, 1, 1, 1, 1);
+//}
 
 void Camera::setCameraParameters(const vec3& position, const vec3& lookAt, const vec3& up,
                                 double fov, double aspectRatio, double aperture, double focusDistance, int imageWidth) {
@@ -67,9 +72,11 @@ void Camera::setCameraParameters(const vec3& position, const vec3& lookAt, const
     
 }
 
-void Camera::render(int samplesPerPixel, World world) const {
-        // Loop over each pixel in the image
-    std::cout << "P3\n" << imageWidth << ' ' << imageHeight << "\n255\n";
+void Camera::render(int samplesPerPixel, World world, const std::string& outputFile) const {
+    // Loop over each pixel in the image
+    
+    std::ofstream outFile(outputFile);
+    outFile << "P3\n" << imageWidth << ' ' << imageHeight << "\n255\n";
 
     for (int j = 0; j < imageHeight; ++j) {
         std::clog << "\rScanlines remaining: " << (imageHeight - j) << ' ' << std::flush;
@@ -96,12 +103,46 @@ void Camera::render(int samplesPerPixel, World world) const {
             }
 
             if (pixel_color.length() == 0) {
-                paintPixelNormalVec(0, 0, 0, false);
+                paintPixelNormalVec(0, 0, 0, false, outFile);
             } else {
                 pixel_color /= samplesPerPixel;
-                paintPixelNormalVec(pixel_color.x, pixel_color.y, pixel_color.z, true);
+                paintPixelNormalVec(pixel_color.x, pixel_color.y, pixel_color.z, true, outFile);
             }
         }
     }
     std::clog << "\rDone.                 \n";
+}
+
+
+void Camera::setupFromJson(const nlohmann::json& jsonInput){
+    //"type":"pinhole", 
+    //        "width":1200, 
+    //        "height":800,
+    //        "position":[0.0, 0, 0],
+    //        "lookAt":[0.0, 0, 1.0],
+    //        "upVector":[0.0, 1.0, 0.0],
+    //        "fov":45.0,
+    //        "exposure":0.1
+    vec3 position = vec3(jsonInput["position"][0],
+                         jsonInput["position"][1],
+                         jsonInput["position"][2]);
+
+    vec3 lookAt = vec3(jsonInput["lookAt"][0],
+                       jsonInput["lookAt"][1],
+                       jsonInput["lookAt"][2]);
+
+    vec3 up = vec3(jsonInput["upVector"][0],
+                   jsonInput["upVector"][1],
+                   jsonInput["upVector"][2]);
+
+    double fov = jsonInput["fov"];
+
+    int imageWidth = jsonInput["width"];
+    double aspectRatio = double(jsonInput["width"]) / double(jsonInput["height"]);
+
+
+    setCameraParameters(position,       lookAt,
+                        up,             fov,
+                        aspectRatio,    1,
+                        1,              imageWidth);
 }

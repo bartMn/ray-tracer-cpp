@@ -2,6 +2,7 @@
 #include "vector.h"
 #include <iostream>
 
+
 int returnColVal(double in_val, bool hit){
     if (!hit) return 0;
     in_val += 1;
@@ -10,12 +11,12 @@ int returnColVal(double in_val, bool hit){
     else return int(in_val);
 }
 
-void paintPixelNormalVec(double R, double G, double B, bool hit)
+void paintPixelNormalVec(double R, double G, double B, bool hit, std::ofstream& outFile)
 {
     int ir = returnColVal(R, hit);
     int ig = returnColVal(G, hit);
     int ib = returnColVal(B, hit); 
-    std::cout << ir << ' ' << ig << ' ' << ib << '\n';
+    outFile << ir << ' ' << ig << ' ' << ib << '\n';
 }
 
 

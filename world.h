@@ -9,6 +9,10 @@
 #include "triangle.h"
 #include "circle.h"
 #include "cylinder.h"
+#include "Camera.h"
+#include "vector.h"
+
+class Camera;
 
 class World {
 public:
@@ -18,10 +22,12 @@ public:
         objects.push_back(hittable);
     }
 
+    void createAndAddTriangle(const nlohmann::json& jsonInput);
     void createAndAddTriangle(vec3 vertex1, vec3 vertex2, vec3 vertex3);
-    void createAndAddSphere(vec3 center, double radius);    
-    void createAndAddCylinder(vec3 bottomCenter, double radius, double height, vec3 normalVector);
+    void createAndAddSphere(const nlohmann::json& jsonInput);    
+    void createAndAddCylinder(const nlohmann::json& jsonInput);
     void createAndAddFloor(vec3 floorCenter, double floorSize);
+    void loadScene(const std::string& filename, Camera& camera);
 
     bool hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const;
 

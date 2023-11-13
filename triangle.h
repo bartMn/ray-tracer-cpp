@@ -3,6 +3,7 @@
 #define TRIANGLE_H
 
 #include "Hittable.h"
+#include ".\json-develop\single_include\nlohmann\json.hpp"
 
 class Triangle : public Hittable {
 public:

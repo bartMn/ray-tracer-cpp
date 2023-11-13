@@ -3,6 +3,7 @@
 #define SPHERE_H
 
 #include "Hittable.h"
+#include ".\json-develop\single_include\nlohmann\json.hpp"
 
 class Sphere : public Hittable {
 public:

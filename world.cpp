@@ -18,20 +18,60 @@ bool World::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const 
     return hit_anything;
 }
 
-void World::createAndAddSphere(vec3 center, double radius){    
-    Sphere newSphere(center, radius);
+void World::createAndAddSphere(const nlohmann::json& jsonInput){    
+    
+    vec3 position = vec3(jsonInput["center"][0],
+                         jsonInput["center"][1],
+                         jsonInput["center"][2]);
+    double radius = jsonInput["radius"];
+
+    Sphere newSphere(position, radius);
     World::addHittable(std::make_shared<Sphere>(newSphere));
 }
 
-void World::createAndAddTriangle(vec3 vertex1, vec3 vertex2, vec3 vertex3){
+void World::createAndAddTriangle(const nlohmann::json& jsonInput)//vec3 vertex1, vec3 vertex2, vec3 vertex3)
+{
+
+    vec3 vertex1 = vec3(jsonInput["v0"][0],
+                        jsonInput["v0"][1],
+                        jsonInput["v0"][2]);
+
+    vec3 vertex2 = vec3(jsonInput["v1"][0],
+                        jsonInput["v1"][1],
+                        jsonInput["v1"][2]);
+
+    vec3 vertex3 = vec3(jsonInput["v2"][0],
+                        jsonInput["v2"][1],
+                        jsonInput["v2"][2]);    
+
     Triangle newTriangle(vertex1,
                          vertex2,
                          vertex3);
     World::addHittable(std::make_shared<Triangle>(newTriangle));
 }
 
-void World::createAndAddCylinder(vec3 bottomCenter, double radius, double height, vec3 normalVector){
+void World::createAndAddTriangle(vec3 vertex1, vec3 vertex2, vec3 vertex3)
+{    Triangle newTriangle(vertex1,
+                          vertex2,
+                          vertex3);
+    World::addHittable(std::make_shared<Triangle>(newTriangle));
+}
+
+
+
+void World::createAndAddCylinder(const nlohmann::json& jsonInput)//vec3 bottomCenter, double radius, double height, vec3 normalVector)
+{
     
+    vec3 bottomCenter = vec3(jsonInput["center"][0],
+                             jsonInput["center"][1],
+                             jsonInput["center"][2]);
+
+    vec3 normalVector = vec3(jsonInput["axis"][0],
+                             jsonInput["axis"][1],
+                             jsonInput["axis"][2]).return_unit();
+
+    double height = jsonInput["height"];
+    double radius = jsonInput["radius"];
     vec3 upperCenter = bottomCenter + normalVector*height;
     Circle topCircle (upperCenter, radius, normalVector);
     Circle bottomCircle(bottomCenter, radius, normalVector*(-1));
@@ -49,10 +89,38 @@ void World::createAndAddCylinder(vec3 bottomCenter, double radius, double height
 void World::createAndAddFloor(vec3 floorCenter, double floorSize){
 
     double halfSize = floorSize/2;
-    World::createAndAddTriangle(floorCenter + vec3(-halfSize, -halfSize, 0),
-                                floorCenter + vec3(halfSize, -halfSize, 0),
-                                floorCenter + vec3(halfSize, halfSize, 0));
-    World::createAndAddTriangle(floorCenter + vec3(-halfSize, -halfSize, 0),
-                                floorCenter + vec3(halfSize, halfSize, 0),
+    createAndAddTriangle(floorCenter + vec3(-halfSize, -halfSize, 0),
+                         floorCenter + vec3(halfSize, -halfSize, 0),
+                         floorCenter + vec3(halfSize, halfSize, 0));
+    createAndAddTriangle(floorCenter + vec3(-halfSize, -halfSize, 0),
+                         floorCenter + vec3(halfSize, halfSize, 0),
                                 floorCenter + vec3(-halfSize, halfSize, 0));
+}
+
+
+void World::loadScene(const std::string& filename, Camera& camera) {
+    std::ifstream file(filename);
+    nlohmann::json sceneJson;
+    file >> sceneJson;
+
+    // Extract camera information
+    camera.setupFromJson(sceneJson["camera"]);
+
+    // Extract world information
+    const nlohmann::json& sceneInfo = sceneJson["scene"];
+    //world.setBackgroundColor(sceneInfo["backgroundcolor"]);
+
+    // Extract shapes information
+    const nlohmann::json& shapesInfo = sceneInfo["shapes"];
+    for (const auto& shapeInfo : shapesInfo) {
+        std::string type = shapeInfo["type"];
+        if (type == "sphere") {
+            createAndAddSphere(shapeInfo);
+        } else if (type == "cylinder") {
+            createAndAddCylinder(shapeInfo);
+        } else if (type == "triangle") {
+            createAndAddTriangle(shapeInfo);
+        }
+        // Add more shape types as needed
+    }
 }

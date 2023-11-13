@@ -6,6 +6,10 @@
 #include "vector.h"  // Your 3D vector class
 #include "Ray.h"      // Your ray class
 #include "world.h"
+#include <fstream>
+#include ".\json-develop\single_include\nlohmann\json.hpp"
+
+class World;
 
 class Camera {
 public:
@@ -20,7 +24,8 @@ public:
 
     // Generate a ray for a given pixel (u, v) on the image plane
     //Ray getRay(double u, double v) const;
-    void render(int samplesPerPixel, World world) const;
+    void render(int samplesPerPixel, World world, const std::string& outputFile) const;
+    void setupFromJson(const nlohmann::json& jsonInput);
 
 private:
     vec3 position;
