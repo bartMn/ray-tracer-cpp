@@ -1,5 +1,6 @@
 // In your cpp file, say World.cpp
 #include "World.h"
+#include "Material.h"
 
 
 bool World::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const {
@@ -26,6 +27,11 @@ void World::createAndAddSphere(const nlohmann::json& jsonInput){
     double radius = jsonInput["radius"];
 
     Sphere newSphere(position, radius);
+    if (jsonInput.contains("material"))
+    {
+        newSphere.setMaterial(Material::getMaterialFromJson(jsonInput["material"]));
+    }
+
     World::addHittable(std::make_shared<Sphere>(newSphere));
 }
 
@@ -47,6 +53,12 @@ void World::createAndAddTriangle(const nlohmann::json& jsonInput)//vec3 vertex1,
     Triangle newTriangle(vertex1,
                          vertex2,
                          vertex3);
+
+    if (jsonInput.contains("material"))
+    {
+        newTriangle.setMaterial(Material::getMaterialFromJson(jsonInput["material"]));
+    }
+                         
     World::addHittable(std::make_shared<Triangle>(newTriangle));
 }
 
@@ -81,6 +93,14 @@ void World::createAndAddCylinder(const nlohmann::json& jsonInput)//vec3 bottomCe
                       height,            //height
                       normalVector);
 
+
+    if (jsonInput.contains("material"))
+    {
+        cylinder.setMaterial(Material::getMaterialFromJson(jsonInput["material"]));
+        topCircle.setMaterial(Material::getMaterialFromJson(jsonInput["material"]));
+        bottomCircle.setMaterial(Material::getMaterialFromJson(jsonInput["material"]));
+    }
+
     World::addHittable(std::make_shared<Cylinder>(cylinder));
     World::addHittable(std::make_shared<Circle>(topCircle));
     World::addHittable(std::make_shared<Circle>(bottomCircle));
@@ -94,7 +114,7 @@ void World::createAndAddFloor(vec3 floorCenter, double floorSize){
                          floorCenter + vec3(halfSize, halfSize, 0));
     createAndAddTriangle(floorCenter + vec3(-halfSize, -halfSize, 0),
                          floorCenter + vec3(halfSize, halfSize, 0),
-                                floorCenter + vec3(-halfSize, halfSize, 0));
+                         floorCenter + vec3(-halfSize, halfSize, 0));
 }
 
 
@@ -104,6 +124,7 @@ void World::loadScene(const std::string& filename, Camera& camera) {
     file >> sceneJson;
 
     // Extract camera information
+    objects.clear();
     camera.setupFromJson(sceneJson["camera"]);
 
     // Extract world information
@@ -124,3 +145,4 @@ void World::loadScene(const std::string& filename, Camera& camera) {
         // Add more shape types as needed
     }
 }
+

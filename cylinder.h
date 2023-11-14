@@ -3,12 +3,14 @@
 #define CYLINDER_H
 
 #include "Hittable.h"
+#include "Material.h"
 
 class Cylinder : public Hittable {
 public:
     Cylinder() {}
     Cylinder(const vec3& center, double radius, double height, const vec3& axisNormal);
 
+    void setMaterial(Material material);
     virtual bool hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const override;
 
 private:
@@ -16,6 +18,7 @@ private:
     double radius;
     double height;
     vec3 axisNormal; // New member variable for the cylinder's axis normal
+    Material material;
 };
 
 #endif // CYLINDER_H

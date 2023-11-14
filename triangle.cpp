@@ -38,3 +38,7 @@ bool Triangle::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) con
 
     return false;
 }
+
+void Triangle::setMaterial(Material material){
+    this ->material = material;
+}

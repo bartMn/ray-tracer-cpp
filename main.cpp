@@ -9,50 +9,16 @@ int main() {
     
     World world;
 
-    //world.createAndAddSphere(vec3(5, 0, +2), 2);
-//
-    //world.createAndAddTriangle(vec3(2, -2, 0),
-    //                           vec3(6, -5, 3),
-    //                           vec3(2, -2, 6));
-//
-    //world.createAndAddFloor(vec3(0,0,0), 20);
-//
-    //world.createAndAddCylinder(vec3(-1, 3, 0),
-    //                           3,
-    //                           2,
-    //                           vec3(0,1,1).return_unit());
-//
-    //Camera cam(vec3(-10,-6, 4), //position
-    //           vec3(0,0,0), //lookAt
-    //           vec3(0,0,1), // up
-    //           45,          //fov
-    //           1,           //double(16)/9, //aspectRatio
-    //           1,           //aperture
-    //           1,           //focus
-    //           512          //width
-    //           );        
-//
-    //world.createAndAddSphere(vec3(-0.3, 0.19, 1), 0.2);
-    //world.createAndAddCylinder(vec3(-0.3, -0.2, 1),
-    //                           0.15,
-    //                           0.2,
-    //                           vec3(1,0,0).return_unit());
-    //world.createAndAddTriangle(vec3(0, 0, 1),
-    //                           vec3(0.5, 0, 1),
-    //                           vec3(0.25,  0.25, 1));
-//
-    //Camera cam(vec3(0,0,0), //position
-    //           vec3(0,0,1), //lookAt
-    //           vec3(0,1,0), // up
-    //           45,          //fov
-    //           1.5,           //double(16)/9, //aspectRatio
-    //           1,           //aperture
-    //           1,           //focus
-    //           1200          //width
-    //           );        
 
-   Camera cam;
-   world.loadScene("D:\\labs\\MScCS\\CGr\\CGRCW2\\binary_primitves.json", cam);
-   cam.render(10, world, "out2.ppm");
+    Camera cam;
+    //world.loadScene("D:\\labs\\MScCS\\CGr\\CGRCW2\\binary_primitves.json", cam);
+    //cam.render(10, world, "outbinary_primitves.ppm");
+    std::vector<std::string> scenes = {"binary_primitves", "mirror_image", "simple_phong", "scene"};
+    for (const auto& scene : scenes){
+        std::cout << "rendering " + scene<< std::endl;
+        world.loadScene("D:\\labs\\MScCS\\CGr\\CGRCW2\\" + scene + ".json", cam);
+        cam.render(10, world, "out" + scene + ".ppm");
+    }
+        
     return 0;
 }

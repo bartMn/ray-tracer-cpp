@@ -44,3 +44,7 @@ bool Cylinder::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) con
 
     return false;
 }
+
+void Cylinder::setMaterial(Material material){
+    this ->material = material;
+}

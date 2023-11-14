@@ -11,6 +11,7 @@
 #include "cylinder.h"
 #include "Camera.h"
 #include "vector.h"
+#include ".\json-develop\single_include\nlohmann\json.hpp"
 
 class Camera;
 

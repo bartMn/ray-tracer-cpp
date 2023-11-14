@@ -27,3 +27,7 @@ bool Sphere::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const
     }
     return false;
 }
+
+void Sphere::setMaterial(Material material){
+    this ->material = material;
+}

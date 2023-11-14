@@ -36,3 +36,7 @@ bool Circle::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const
 
     return false;
 }
+
+void Circle::setMaterial(Material material){
+    this ->material = material;
+}
