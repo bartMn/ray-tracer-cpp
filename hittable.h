@@ -4,12 +4,14 @@
 
 #include "Ray.h"
 #include "vector.h"
+#include "Material.h"
 // In Hittable.h, update the class definition
 
 struct HitRecord {
     double t;
     vec3 p;
     vec3 normal;
+    Material material;
 };
 
 class Hittable {

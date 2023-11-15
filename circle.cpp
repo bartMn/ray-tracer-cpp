@@ -9,6 +9,8 @@ Circle::Circle(const vec3& center, double radius, const vec3& normal){
 
 bool Circle::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const {
     // Check if the ray is parallel to the circle's normal
+    
+    rec.material = this-> material;
     double denom = vec3::dot(r.getDirection(), normal);
     if (std::abs(denom) < 1e-6) {
         return false;

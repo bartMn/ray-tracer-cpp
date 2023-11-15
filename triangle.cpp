@@ -3,7 +3,7 @@
 
 bool Triangle::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const {
     // Möller–Trumbore intersection algorithm
-
+    rec.material = this-> material;
     const double EPSILON = 1e-6;
 
     vec3 edge1 = v1 - v0;

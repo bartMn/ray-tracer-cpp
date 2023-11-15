@@ -84,6 +84,7 @@ void Camera::render(int samplesPerPixel, World world, const std::string& outputF
         for (int i = 0; i < imageWidth; ++i) {
 
             vec3 pixel_color(0, 0, 0);
+            vec3 temp_color(0, 0, 0);
 
             for (int s = 0; s < samplesPerPixel; ++s) {
                 double u_offset = random_double(0,1);
@@ -99,19 +100,27 @@ void Camera::render(int samplesPerPixel, World world, const std::string& outputF
 
                 if (hit_return) {
                     vec3 target = rec.p + rec.normal + random_in_unit_sphere();
-                    pixel_color += 0.5 * (target - rec.p).return_unit();
+                    //pixel_color += 0.5 * (target - rec.p).return_unit();
+                
+                    if (!binaryRender) {
+                        temp_color = rec.material.getDiffuseColor();
+                        pixel_color += temp_color;
+                    }
+                    else{
+                        pixel_color += vec3(50,50,50);
+                    } 
                 }
             }
 
             if (pixel_color.length() == 0) {
-                paintPixelNormalVec(0, 0, 0, false, outFile);
+                paintPixel(vec3(0,0,0), false, outFile);
             } 
             else if (binaryRender){
-                paintPixelNormalVec(255,0,0, true, outFile);
+                paintPixel(vec3(255,0,0), true, outFile);
             }
             else{
                 pixel_color /= samplesPerPixel;
-                paintPixelNormalVec(pixel_color.x, pixel_color.y, pixel_color.z, true, outFile);
+                paintPixel(pixel_color, true, outFile);
             }
         }
     }

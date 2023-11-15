@@ -27,6 +27,7 @@ public:
     Material() : ks(0.0), kd(0.0), specularexponent(0.0), isreflective(false),
                 reflectivity(0.0), isrefractive(false), refractiveindex(0.0) {}
 
+    vec3 getDiffuseColor();
     static Material getMaterial(float ks,  // Specular reflection coefficient
                                 float kd,  // Diffuse reflection coefficient
                                 float specularexponent,

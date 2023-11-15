@@ -42,3 +42,7 @@ Material Material::getMaterialFromJson(const nlohmann::json& jsonInput){
                        bool (jsonInput["isrefractive"]),
                        float(jsonInput["refractiveindex"]));
 }
+
+vec3 Material::getDiffuseColor(){
+    return diffusecolor;
+}

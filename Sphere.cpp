@@ -3,6 +3,7 @@
 
 
 bool Sphere::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const {
+    rec.material = this-> material;
     vec3 oc = r.getOrigin() - center;
     double a = vec3::dot(r.getDirection(), r.getDirection());
     double b = vec3::dot(oc, r.getDirection());

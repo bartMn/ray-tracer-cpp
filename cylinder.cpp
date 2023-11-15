@@ -5,6 +5,8 @@ Cylinder::Cylinder(const vec3& center, double radius, double height, const vec3&
     : center(center), radius(radius), height(height), axisNormal(const_cast<vec3&>(axisNormal).return_unit()) {}
 
 bool Cylinder::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const {
+    
+    rec.material = this-> material;
     // Calculate the intersection of the ray with the finite cylinder
     vec3 oc = r.getOrigin() - center;
     double a = vec3::dot(r.getDirection() - axisNormal * vec3::dot(r.getDirection(), axisNormal), r.getDirection() - axisNormal * vec3::dot(r.getDirection(), axisNormal));
