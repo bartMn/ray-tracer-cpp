@@ -16,16 +16,16 @@ public:
     // Constructors
     Camera() {}
     Camera(const vec3& position, const vec3& lookAt, const vec3& up, 
-           double fov, double aspectRatio, double aperture, double focusDistance, int imageWidth);
+           double fov, double aspectRatio, double aperture, double focusDistance, int imageWidth, bool binaryRender);
 
     // Setters for camera parameters
     void setCameraParameters(const vec3& position, const vec3& lookAt, const vec3& up,
-                             double fov, double aspectRatio, double aperture, double focusDistance, int imageWidth);
+                             double fov, double aspectRatio, double aperture, double focusDistance, int imageWidth, bool binaryRender);
 
     // Generate a ray for a given pixel (u, v) on the image plane
     //Ray getRay(double u, double v) const;
     void render(int samplesPerPixel, World world, const std::string& outputFile) const;
-    void setupFromJson(const nlohmann::json& jsonInput);
+    void setupFromJson(const nlohmann::json& jsonInputCam, std::string RenderModeString);
 
 private:
     vec3 position;
@@ -40,6 +40,7 @@ private:
     vec3   pixel00_loc;    // Location of pixel 0, 0
     vec3   pixel_delta_u;  // Offset to pixel to the right
     vec3   pixel_delta_v;
+    bool binaryRender;
 };
 
 

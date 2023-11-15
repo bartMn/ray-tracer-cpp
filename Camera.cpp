@@ -26,8 +26,8 @@ vec3 random_in_unit_sphere() {
 }
 
 Camera::Camera(const vec3& position, const vec3& lookAt, const vec3& up,
-               double fov, double aspectRatio, double aperture, double focusDistance, int imageWidth) {
-    setCameraParameters(position, lookAt, up, fov, aspectRatio, aperture, focusDistance, imageWidth);
+               double fov, double aspectRatio, double aperture, double focusDistance, int imageWidth, bool binaryRender) {
+    setCameraParameters(position, lookAt, up, fov, aspectRatio, aperture, focusDistance, imageWidth, binaryRender);
 }
 
 //Camera::Camera() {
@@ -35,7 +35,7 @@ Camera::Camera(const vec3& position, const vec3& lookAt, const vec3& up,
 //}
 
 void Camera::setCameraParameters(const vec3& position, const vec3& lookAt, const vec3& up,
-                                double fov, double aspectRatio, double aperture, double focusDistance, int imageWidth) {
+                                double fov, double aspectRatio, double aperture, double focusDistance, int imageWidth, bool binaryRender) {
     // Calculate camera parameters
     
     
@@ -69,6 +69,7 @@ void Camera::setCameraParameters(const vec3& position, const vec3& lookAt, const
     // Calculate the location of the upper left pixel.
     vec3 viewport_upper_left = position - (focal_length * w) - viewport_u/2 - viewport_v/2;
     pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
+    this -> binaryRender = binaryRender;
     
 }
 
@@ -104,7 +105,11 @@ void Camera::render(int samplesPerPixel, World world, const std::string& outputF
 
             if (pixel_color.length() == 0) {
                 paintPixelNormalVec(0, 0, 0, false, outFile);
-            } else {
+            } 
+            else if (binaryRender){
+                paintPixelNormalVec(255,0,0, true, outFile);
+            }
+            else{
                 pixel_color /= samplesPerPixel;
                 paintPixelNormalVec(pixel_color.x, pixel_color.y, pixel_color.z, true, outFile);
             }
@@ -114,7 +119,7 @@ void Camera::render(int samplesPerPixel, World world, const std::string& outputF
 }
 
 
-void Camera::setupFromJson(const nlohmann::json& jsonInput){
+void Camera::setupFromJson(const nlohmann::json& jsonInputCam, std::string RenderModeString){
     //"type":"pinhole", 
     //        "width":1200, 
     //        "height":800,
@@ -123,26 +128,30 @@ void Camera::setupFromJson(const nlohmann::json& jsonInput){
     //        "upVector":[0.0, 1.0, 0.0],
     //        "fov":45.0,
     //        "exposure":0.1
-    vec3 position = vec3(jsonInput["position"][0],
-                         jsonInput["position"][1],
-                         jsonInput["position"][2]);
+    vec3 position_loc = vec3(jsonInputCam["position"][0],
+                         jsonInputCam["position"][1],
+                         jsonInputCam["position"][2]);
 
-    vec3 lookAt = vec3(jsonInput["lookAt"][0],
-                       jsonInput["lookAt"][1],
-                       jsonInput["lookAt"][2]);
+    vec3 lookAt_loc = vec3(jsonInputCam["lookAt"][0],
+                       jsonInputCam["lookAt"][1],
+                       jsonInputCam["lookAt"][2]);
 
-    vec3 up = vec3(jsonInput["upVector"][0],
-                   jsonInput["upVector"][1],
-                   jsonInput["upVector"][2]);
+    vec3 up_loc = vec3(jsonInputCam["upVector"][0],
+                   jsonInputCam["upVector"][1],
+                   jsonInputCam["upVector"][2]);
 
-    double fov = jsonInput["fov"];
+    double fov_loc = jsonInputCam["fov"];
 
-    int imageWidth = jsonInput["width"];
-    double aspectRatio = double(jsonInput["width"]) / double(jsonInput["height"]);
+    int imageWidth_loc = jsonInputCam["width"];
+    double aspectRatio_loc = double(jsonInputCam["width"]) / double(jsonInputCam["height"]);
+
+    //std::cout << "getting render mode"<< std::endl;
+    bool binaryRender_loc = RenderModeString == "binary" ? true: false; 
 
 
-    setCameraParameters(position,       lookAt,
-                        up,             fov,
-                        aspectRatio,    1,
-                        1,              imageWidth);
+    setCameraParameters(position_loc,       lookAt_loc,
+                        up_loc,             fov_loc,
+                        aspectRatio_loc,    1,
+                        1,              imageWidth_loc,
+                        binaryRender_loc);
 }

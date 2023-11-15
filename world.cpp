@@ -73,18 +73,19 @@ void World::createAndAddTriangle(vec3 vertex1, vec3 vertex2, vec3 vertex3)
 
 void World::createAndAddCylinder(const nlohmann::json& jsonInput)//vec3 bottomCenter, double radius, double height, vec3 normalVector)
 {
-    
-    vec3 bottomCenter = vec3(jsonInput["center"][0],
-                             jsonInput["center"][1],
-                             jsonInput["center"][2]);
+    double height = jsonInput["height"];
+    double radius = jsonInput["radius"];    
 
     vec3 normalVector = vec3(jsonInput["axis"][0],
                              jsonInput["axis"][1],
                              jsonInput["axis"][2]).return_unit();
 
-    double height = jsonInput["height"];
-    double radius = jsonInput["radius"];
-    vec3 upperCenter = bottomCenter + normalVector*height;
+    vec3 bottomCenter = vec3(jsonInput["center"][0],
+                             jsonInput["center"][1],
+                             jsonInput["center"][2]) - normalVector*(0.5*height);
+
+
+    vec3 upperCenter = bottomCenter + normalVector*(0.5*height);
     Circle topCircle (upperCenter, radius, normalVector);
     Circle bottomCircle(bottomCenter, radius, normalVector*(-1));
 
@@ -125,7 +126,7 @@ void World::loadScene(const std::string& filename, Camera& camera) {
 
     // Extract camera information
     objects.clear();
-    camera.setupFromJson(sceneJson["camera"]);
+    camera.setupFromJson(sceneJson["camera"], sceneJson["rendermode"]);
 
     // Extract world information
     const nlohmann::json& sceneInfo = sceneJson["scene"];
