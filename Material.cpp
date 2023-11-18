@@ -46,3 +46,14 @@ Material Material::getMaterialFromJson(const nlohmann::json& jsonInput){
 vec3 Material::getDiffuseColor(){
     return diffusecolor;
 }
+
+vec3 Material::getSpecularColor(){
+    return specularcolor;
+}
+
+void Material::setDiffuseColor(vec3 new_color){
+    this->diffusecolor = new_color;
+}
+void Material::setSpecularColor(vec3 new_color){
+    this->specularcolor = new_color;
+}

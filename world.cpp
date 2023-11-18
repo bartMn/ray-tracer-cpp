@@ -3,7 +3,17 @@
 #include "Material.h"
 
 
-bool World::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const {
+Ray World::compute_reflected_ray(Ray& r, HitRecord& rec) {
+    vec3 reflected_direction = reflect(r.get_normalized(), rec.normal);
+    vec3 reflected_origin = rec.p + 0.01 * rec.normal; // Add a small epsilon to avoid self-intersection
+    return Ray(reflected_origin, reflected_direction, vec3(255, 255, 255), r.getDepth() + 1);
+}
+
+vec3 World::reflect(const vec3& v, const vec3& normal) {
+    return v - 2 * vec3::dot(v, normal) * normal;
+}
+
+bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
     HitRecord temp_rec;
     bool hit_anything = false;
     double closest_so_far = t_max;
@@ -11,13 +21,34 @@ bool World::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const 
     for (const auto& object : objects) {
         if (object->hit(r, t_min, closest_so_far, temp_rec)) {
             hit_anything = true;
+
+            // Lambertian shading (replace this with your shading model)
+            vec3 shading_diffuse = temp_rec.material.getDiffuseColor();
+
+            // Initialize specular color
+            vec3 shading_specular(0, 0, 0);
+
             closest_so_far = temp_rec.t;
+
+            // Include the recursive call for reflections
+            if (depth < maxBounces) {
+                Ray reflected_ray = compute_reflected_ray(r, temp_rec);
+                HitRecord reflected_rec;
+                if (hit(reflected_ray, t_min, t_max, reflected_rec, depth + 1)) {
+                    // Combine specular reflection with shading
+                    shading_specular = reflected_rec.material.getSpecularColor();
+                }
+            }
+
+            r.setColor(r.getColor() + shading_diffuse + shading_specular);
             rec = temp_rec;
         }
     }
 
     return hit_anything;
 }
+
+
 
 void World::createAndAddSphere(const nlohmann::json& jsonInput){    
     

@@ -28,6 +28,9 @@ public:
                 reflectivity(0.0), isrefractive(false), refractiveindex(0.0) {}
 
     vec3 getDiffuseColor();
+    vec3 getSpecularColor();
+    void setDiffuseColor(vec3 new_color);
+    void setSpecularColor(vec3 new_color);
     static Material getMaterial(float ks,  // Specular reflection coefficient
                                 float kd,  // Diffuse reflection coefficient
                                 float specularexponent,

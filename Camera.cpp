@@ -93,17 +93,16 @@ void Camera::render(int samplesPerPixel, World world, const std::string& outputF
                 vec3 pixel_center = pixel00_loc + ((i + u_offset) * pixel_delta_u) + ((j + v_offset) * pixel_delta_v);
 
                 vec3 ray_direction = pixel_center - position;
-                Ray r(position, ray_direction.return_unit(), vec3(100, 100, 100));
-
+                Ray r(position, ray_direction.return_unit(), vec3(0, 0, 0), 0); // Initialize depth to 0
                 HitRecord rec;
-                bool hit_return = world.hit(r, 0.001, std::numeric_limits<double>::infinity(), rec);
+                bool hit_return = world.hit(r, 0.001, std::numeric_limits<double>::infinity(), rec, 0); // Pass depth as 0
 
                 if (hit_return) {
-                    vec3 target = rec.p + rec.normal + random_in_unit_sphere();
+                    //vec3 target = rec.p + rec.normal + random_in_unit_sphere();
                     //pixel_color += 0.5 * (target - rec.p).return_unit();
                 
                     if (!binaryRender) {
-                        temp_color = rec.material.getDiffuseColor();
+                        temp_color = r.getColor();
                         pixel_color += temp_color;
                     }
                     else{

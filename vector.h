@@ -33,6 +33,7 @@ public:
 vec3 operator+(const vec3& a, const vec3& b);
 vec3 operator-(const vec3& a, const vec3& b);
 vec3 operator*(const vec3& v, double scalar);
+vec3 operator*(const vec3& a, const vec3& b);
 vec3 operator*(double scalar, const vec3& v);
 vec3 operator/(const vec3& v, double scalar);
 vec3 operator-(const vec3& v);
