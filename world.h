@@ -17,7 +17,7 @@ class Camera;
 
 class World {
 public:
-    World() {maxBounces = 3;}
+    World() {}
 
     void addHittable(std::shared_ptr<Hittable> hittable) {
         objects.push_back(hittable);

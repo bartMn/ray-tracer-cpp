@@ -158,7 +158,16 @@ void World::loadScene(const std::string& filename, Camera& camera) {
     // Extract camera information
     objects.clear();
     camera.setupFromJson(sceneJson["camera"], sceneJson["rendermode"]);
+    
+    if (sceneJson.contains("nbounces"))
+    {
+        maxBounces = int(sceneJson["nbounces"]);
+    }
+    else{
+        maxBounces = 0;
+    }
 
+    std::cout << maxBounces <<std::endl;
     // Extract world information
     const nlohmann::json& sceneInfo = sceneJson["scene"];
     //world.setBackgroundColor(sceneInfo["backgroundcolor"]);
