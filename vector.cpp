@@ -81,6 +81,7 @@ vec3& vec3::operator/=(double scalar) {
 
 vec3 operator+(const vec3& a, const vec3& b) {return vec3(a.x + b.x, a.y + b.y, a.z + b.z);}
 vec3 operator-(const vec3& a, const vec3& b) {return vec3(a.x - b.x, a.y - b.y, a.z - b.z);}
+vec3 operator*(const vec3& a, const vec3& b) {return vec3(a.x * b.x, a.y * b.y, a.z * b.z);}
 vec3 operator*(const vec3& v, double scalar) {return vec3(v.x * scalar, v.y * scalar, v.z * scalar);}
 vec3 operator*(double scalar, const vec3& v) {return v * scalar;}
 vec3 operator/(const vec3& v, double scalar) {
