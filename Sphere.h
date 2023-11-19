@@ -12,6 +12,7 @@ public:
 
     vec3 getLightColour();
     void setLightColour(vec3 lightCol);
+    vec3 getPosition();
     void setMaterial(Material material);
     virtual bool hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const override;
 

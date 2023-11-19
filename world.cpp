@@ -27,6 +27,15 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
             vec3 ambient_part = diffuse_colour;
             // Initialize specular color
             vec3 collected_colour(0, 0, 0);
+            float kd ; 
+            float ks ;
+            float specularexponent ; 
+
+            vec3 diffuse_part ;
+            vec3 specular_part ; 
+            vec3 light ;
+
+
 
             closest_so_far = temp_rec.t;
 
@@ -34,28 +43,37 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
             if (depth < maxBounces) {
                 Ray reflected_ray = compute_reflected_ray(r, temp_rec);
                 HitRecord reflected_rec;
-                if (hit(reflected_ray, t_min, t_max, reflected_rec, depth + 1)) {
+                if (hit(reflected_ray, t_min, t_max, reflected_rec, depth + 1)) {}
                     // Combine specular reflection with shading
                     //collected_colour += phongRayShading();
-                    float kd = reflected_rec.material.getKd(); 
-                    float ks = reflected_rec.material.getKs();
-                    float specularexponent = reflected_rec.material.getSpecularexponent(); 
+                    for (const auto& lightSource : lightSources)
+                    {
+                        vec3 normalLightVector = (lightSource->getPosition() - reflected_rec.p).return_unit();
+                        vec3 normalViewVector = (camPtr->getPosition() - reflected_rec.p).return_unit();
+                        vec3 normalReflectedVector = 2*vec3::dot(normalLightVector, reflected_rec.normal)*reflected_rec.normal - normalLightVector;
+                        kd = reflected_rec.material.getKd(); 
+                        ks = reflected_rec.material.getKs();
+                        specularexponent = reflected_rec.material.getSpecularexponent(); 
 
-                    vec3 diffuse_part = reflected_rec.material.getDiffuseColor();
-                    vec3 specular_part = reflected_rec.material.getSpecularColor(); 
-                    vec3 light = reflected_ray.getColor();
-                    collected_colour += kd*light + ks*light;
-                }
+
+                        double diffuseDot = std::max(0.0, vec3::dot(normalLightVector, reflected_rec.normal));
+                        double specularDot = std::max(0.0, vec3::dot(normalReflectedVector, normalViewVector));
+                        double expoResult = std::pow(specularDot, specularexponent);
+                        diffuse_part = kd * diffuseDot * reflected_rec.material.getDiffuseColor() * lightSource->getLightColour();
+                        specular_part = ks * expoResult * reflected_rec.material.getSpecularColor() * lightSource->getLightColour();
+                        //light = reflected_ray.getColor();
+                        collected_colour += diffuse_part + specular_part;
+                    }
+                
             }
 
-            r.setColor(r.getColor() + ambient_part + 0.0001*collected_colour);
+            r.setColor(r.getColor() + ambient_part + 1*collected_colour);
             rec = temp_rec;
         }
     }
 
     return hit_anything;
 }
-
 
 
 void World::createAndLight(const nlohmann::json& jsonInput){    
@@ -179,6 +197,7 @@ void World::loadScene(const std::string& filename, Camera& camera) {
     // Extract camera information
     objects.clear();
     camera.setupFromJson(sceneJson["camera"], sceneJson["rendermode"]);
+    camPtr = &camera;
     
     if (sceneJson.contains("nbounces"))
     {

@@ -40,3 +40,8 @@ void Sphere::setLightColour(vec3 lightCol){
 vec3 Sphere::getLightColour(){
     return ligthColour;
 }
+
+vec3 Sphere::getPosition(){
+    return center;
+}
+

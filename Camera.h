@@ -26,6 +26,7 @@ public:
     //Ray getRay(double u, double v) const;
     void render(int samplesPerPixel, World world, const std::string& outputFile) const;
     void setupFromJson(const nlohmann::json& jsonInputCam, std::string RenderModeString);
+    vec3 getPosition();
 
 private:
     vec3 position;

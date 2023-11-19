@@ -23,7 +23,7 @@ public:
         objects.push_back(hittable);
     }
 
-    void addLightSource(std::shared_ptr<Hittable> hittable) {
+    void addLightSource(std::shared_ptr<Sphere> hittable) {
         lightSources.push_back(hittable);
     }
 
@@ -43,7 +43,8 @@ public:
 
 private:
     std::vector<std::shared_ptr<Hittable>> objects;
-    std::vector<std::shared_ptr<Hittable>> lightSources;
+    std::vector<std::shared_ptr<Sphere>> lightSources;
+    Camera *camPtr;
     int maxBounces;
 };
 

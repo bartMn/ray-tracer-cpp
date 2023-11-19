@@ -17,6 +17,7 @@ double random_double(double min, double max) {
     return distribution(generator);
 }
 
+
 vec3 random_in_unit_sphere() {
     while (true) {
         vec3 p = vec3::random(-1, 1);
@@ -33,6 +34,7 @@ Camera::Camera(const vec3& position, const vec3& lookAt, const vec3& up,
 //Camera::Camera() {
 //    setCameraParameters(vec3(0,0,0), vec3(0,0,0), vec3(0,0,0), 1, 1, 1, 1, 1);
 //}
+vec3 Camera::getPosition() {return position;}
 
 void Camera::setCameraParameters(const vec3& position, const vec3& lookAt, const vec3& up,
                                 double fov, double aspectRatio, double aperture, double focusDistance, int imageWidth, bool binaryRender) {
