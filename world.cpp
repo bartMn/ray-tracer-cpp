@@ -18,59 +18,62 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
     bool hit_anything = false;
     double closest_so_far = t_max;
 
-    for (const auto& object : objects) {
-        if (object->hit(r, t_min, closest_so_far, temp_rec)) {
+    for (const auto& object : objects) 
+    {
+        if (object->hit(r, t_min, closest_so_far, temp_rec)) 
+        {
             hit_anything = true;
-
-            // Lambertian shading (replace this with your shading model)
-            vec3 diffuse_colour = temp_rec.material.getDiffuseColor();
-            vec3 ambient_part = diffuse_colour;
-            // Initialize specular color
-            vec3 collected_colour(0, 0, 0);
-            float kd ; 
-            float ks ;
-            float specularexponent ; 
-
-            vec3 diffuse_part ;
-            vec3 specular_part ; 
-            vec3 light ;
-
-
-
             closest_so_far = temp_rec.t;
-
-            // Include the recursive call for reflections
-            if (depth < maxBounces) {
-                Ray reflected_ray = compute_reflected_ray(r, temp_rec);
-                HitRecord reflected_rec;
-                if (hit(reflected_ray, t_min, t_max, reflected_rec, depth + 1)) {}
-                    // Combine specular reflection with shading
-                    //collected_colour += phongRayShading();
-                    for (const auto& lightSource : lightSources)
-                    {
-                        vec3 normalLightVector = (lightSource->getPosition() - reflected_rec.p).return_unit();
-                        vec3 normalViewVector = (camPtr->getPosition() - reflected_rec.p).return_unit();
-                        vec3 normalReflectedVector = 2*vec3::dot(normalLightVector, reflected_rec.normal)*reflected_rec.normal - normalLightVector;
-                        kd = reflected_rec.material.getKd(); 
-                        ks = reflected_rec.material.getKs();
-                        specularexponent = reflected_rec.material.getSpecularexponent(); 
-
-
-                        double diffuseDot = std::max(0.0, vec3::dot(normalLightVector, reflected_rec.normal));
-                        double specularDot = std::max(0.0, vec3::dot(normalReflectedVector, normalViewVector));
-                        double expoResult = std::pow(specularDot, specularexponent);
-                        diffuse_part = kd * diffuseDot * reflected_rec.material.getDiffuseColor() * lightSource->getLightColour();
-                        specular_part = ks * expoResult * reflected_rec.material.getSpecularColor() * lightSource->getLightColour();
-                        //light = reflected_ray.getColor();
-                        collected_colour += diffuse_part + specular_part;
-                    }
-                
-            }
-
-            r.setColor(r.getColor() + ambient_part + 1*collected_colour);
-            rec = temp_rec;
         }
     }
+    // Lambertian shading (replace this with your shading model)
+    vec3 diffuse_colour = temp_rec.material.getDiffuseColor();
+    vec3 ambient_part = diffuse_colour;
+    // Initialize specular color
+    vec3 collected_colour(0, 0, 0);
+    float kd ; 
+    float ks ;
+    float specularexponent ; 
+
+    vec3 diffuse_part ;
+    vec3 specular_part ; 
+    vec3 light ;
+    // Include the recursive call for reflections
+    
+        
+
+    // Combine specular reflection with shading
+    //collected_colour += phongRayShading();
+    for (const auto& lightSource : lightSources)
+    {
+        vec3 normalLightVector = (lightSource->getPosition() - temp_rec.p).return_unit();
+        vec3 normalViewVector = (camPtr->getPosition() - temp_rec.p).return_unit();
+        vec3 normalReflectedVector = 2*vec3::dot(normalLightVector, temp_rec.normal)*temp_rec.normal - normalLightVector;
+        kd = temp_rec.material.getKd(); 
+        ks = temp_rec.material.getKs();
+        specularexponent = temp_rec.material.getSpecularexponent(); 
+
+
+        double diffuseDot = std::max(0.0, vec3::dot(normalLightVector, temp_rec.normal));
+        double specularDot = std::max(0.0, vec3::dot(normalReflectedVector, normalViewVector));
+        double expoResult = std::pow(specularDot, specularexponent);
+        diffuse_part = kd * diffuseDot * temp_rec.material.getDiffuseColor() * lightSource->getLightColour();
+        specular_part = ks * expoResult * temp_rec.material.getSpecularColor() * lightSource->getLightColour();
+        //light = reflected_ray.getColor();
+        collected_colour += diffuse_part + specular_part;
+    }
+                
+    r.setColor(r.getColor() + ambient_part + 1*collected_colour);
+    rec = temp_rec;
+
+    Ray reflected_ray = compute_reflected_ray(r, temp_rec);
+    HitRecord reflected_rec;
+    //if (depth < maxBounces) 
+    //{
+    //    hit(reflected_ray, t_min, t_max, reflected_rec, depth + 1);
+    //    r.setColor(r.getColor() + reflected_ray.getColor());
+    //}    
+    
 
     return hit_anything;
 }
@@ -226,12 +229,14 @@ void World::loadScene(const std::string& filename, Camera& camera) {
         // Add more shape types as needed
     }
 
-    const nlohmann::json& lightsInfo = sceneInfo["lightsources"];
-    for (const auto& lightInfo : lightsInfo) {
-        std::string type = lightInfo["type"];
-        if (type == "pointlight") {
-            createAndLight(lightInfo);
-        // Add more shape types as needed
+    if (sceneInfo.contains("lightsources")) {
+        const nlohmann::json& lightsInfo = sceneInfo["lightsources"];
+        for (const auto& lightInfo : lightsInfo) {
+            std::string type = lightInfo["type"];
+            if (type == "pointlight") {
+                createAndLight(lightInfo);
+            // Add more shape types as needed
+            }
         }
     }
 }
