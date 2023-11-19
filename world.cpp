@@ -6,7 +6,7 @@
 Ray World::compute_reflected_ray(Ray& r, HitRecord& rec) {
     vec3 reflected_direction = reflect(r.get_normalized(), rec.normal);
     vec3 reflected_origin = rec.p + 0.01 * rec.normal; // Add a small epsilon to avoid self-intersection
-    return Ray(reflected_origin, reflected_direction, vec3(255, 255, 255), r.getDepth() + 1);
+    return Ray(reflected_origin, reflected_direction, vec3(0, 0, 0), r.getDepth() + 1);
 }
 
 vec3 World::reflect(const vec3& v, const vec3& normal) {
@@ -63,17 +63,20 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
         collected_colour += diffuse_part + specular_part;
     }
                 
-    r.setColor(r.getColor() + ambient_part + 1*collected_colour);
-    rec = temp_rec;
 
-    Ray reflected_ray = compute_reflected_ray(r, temp_rec);
     HitRecord reflected_rec;
-    //if (depth < maxBounces) 
-    //{
-    //    hit(reflected_ray, t_min, t_max, reflected_rec, depth + 1);
-    //    r.setColor(r.getColor() + reflected_ray.getColor());
-    //}    
-    
+    if (depth < maxBounces) {
+        Ray reflected_ray = compute_reflected_ray(r, temp_rec);
+        HitRecord reflected_rec;
+        if (hit(reflected_ray, t_min, t_max, reflected_rec, depth + 1)) {
+            if (temp_rec.material.getIsreflective()){
+                collected_colour +=  temp_rec.material.getSpecularColor() * reflected_ray.getColor();
+            }
+        }
+    }  
+
+    r.setColor(r.getColor() + ambient_part + collected_colour);
+    rec = temp_rec;    
 
     return hit_anything;
 }

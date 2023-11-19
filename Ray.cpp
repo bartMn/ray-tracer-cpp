@@ -17,6 +17,9 @@ vec3 Ray::getColor() const { return color; }
 void Ray::setColor(vec3 newcolor) {color = newcolor;}
 int Ray::getDepth() const { return depth; }
 vec3 Ray::pointAtParameter(float t) const {return origin + t * direction;}
+void Ray::clampColour(){
+    color = color.return_unit();
+}
 
 vec3 Ray::get_normalized() const {
     return const_cast<vec3&>(direction).return_unit();
