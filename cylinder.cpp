@@ -6,7 +6,7 @@ Cylinder::Cylinder(const vec3& center, double radius, double height, const vec3&
 
 bool Cylinder::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const {
     
-    rec.material = this-> material;
+    
     // Calculate the intersection of the ray with the finite cylinder
     vec3 oc = r.getOrigin() - center;
     double a = vec3::dot(r.getDirection() - axisNormal * vec3::dot(r.getDirection(), axisNormal), r.getDirection() - axisNormal * vec3::dot(r.getDirection(), axisNormal));
@@ -25,6 +25,7 @@ bool Cylinder::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) con
             double hit_height = vec3::dot(r.pointAtParameter(root1) - center, axisNormal);
 
             if (hit_height >= 0 && hit_height <= height) {
+                rec.material = this-> material;
                 rec.t = root1;
                 rec.p = r.pointAtParameter(rec.t);
                 rec.normal = (rec.p - center - hit_height * axisNormal).return_unit();  // Dynamic normal calculation
@@ -36,6 +37,7 @@ bool Cylinder::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) con
             double hit_height = vec3::dot(r.pointAtParameter(root2) - center, axisNormal);
 
             if (hit_height >= 0 && hit_height <= height) {
+                rec.material = this-> material;
                 rec.t = root2;
                 rec.p = r.pointAtParameter(rec.t);
                 rec.normal = (rec.p - center - hit_height * axisNormal).return_unit();  // Dynamic normal calculation
