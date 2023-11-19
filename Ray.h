@@ -22,6 +22,7 @@ public:
     vec3 pointAtParameter(float t) const;
     vec3 get_normalized() const;
     int getDepth() const;
+    void clampColour();
    
 
 };
