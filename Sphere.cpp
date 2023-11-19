@@ -32,3 +32,11 @@ bool Sphere::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const
 void Sphere::setMaterial(Material material){
     this ->material = material;
 }
+
+void Sphere::setLightColour(vec3 lightCol){
+    this->ligthColour = lightCol;
+}
+
+vec3 Sphere::getLightColour(){
+    return ligthColour;
+}
