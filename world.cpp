@@ -46,6 +46,21 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
     //collected_colour += phongRayShading();
     for (const auto& lightSource : lightSources)
     {
+        HitRecord temp_rec_shading;
+        bool hit_anything_shading = false;
+        double closest_so_far_shading = t_max;
+        Ray r_shading(temp_rec.p, lightSource->getPosition(), vec3(0, 0, 0), 0);
+        for (const auto& object : objects) 
+        {   
+            if (object->hit(r_shading, t_min, closest_so_far_shading, temp_rec_shading)) 
+            {
+                hit_anything_shading = true;
+                break;
+            }
+        }
+        
+        if (hit_anything_shading) {continue;}
+        
         vec3 normalLightVector = (lightSource->getPosition() - temp_rec.p).return_unit();
         vec3 normalViewVector = (camPtr->getPosition() - temp_rec.p).return_unit();
         vec3 normalReflectedVector = 2*vec3::dot(normalLightVector, temp_rec.normal)*temp_rec.normal - normalLightVector;
