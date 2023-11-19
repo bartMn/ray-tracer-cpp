@@ -10,6 +10,8 @@ public:
     Sphere() {}
     Sphere(const vec3& center, double radius) : center(center), radius(radius) {}
 
+    vec3 getLightColour();
+    void setLightColour(vec3 lightCol);
     void setMaterial(Material material);
     virtual bool hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const override;
 
@@ -17,6 +19,7 @@ private:
     vec3 center;
     double radius;
     Material material;
+    vec3 ligthColour;
 };
 
 #endif // SPHERE_H

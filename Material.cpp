@@ -57,3 +57,13 @@ void Material::setDiffuseColor(vec3 new_color){
 void Material::setSpecularColor(vec3 new_color){
     this->specularcolor = new_color;
 }
+
+float Material::getSpecularexponent() {return specularexponent;}
+vec3 Material::getDiffusecolor() {return diffusecolor;}
+vec3 Material::getSpecularcolor() {return specularcolor;}
+bool Material::getIsreflective() {return isreflective;}
+float Material::getReflectivity() {return reflectivity;}
+bool Material::getIsrefractive() {return isrefractive;}
+float Material::getRefractiveindex() {return refractiveindex;};
+float Material::getKs() {return ks;}
+float Material::getKd() {return kd;}

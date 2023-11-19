@@ -23,6 +23,11 @@ public:
         objects.push_back(hittable);
     }
 
+    void addLightSource(std::shared_ptr<Hittable> hittable) {
+        lightSources.push_back(hittable);
+    }
+
+    void createAndLight(const nlohmann::json& jsonInput);
     void createAndAddTriangle(const nlohmann::json& jsonInput);
     void createAndAddTriangle(vec3 vertex1, vec3 vertex2, vec3 vertex3);
     void createAndAddSphere(const nlohmann::json& jsonInput);    
@@ -38,6 +43,7 @@ public:
 
 private:
     std::vector<std::shared_ptr<Hittable>> objects;
+    std::vector<std::shared_ptr<Hittable>> lightSources;
     int maxBounces;
 };
 

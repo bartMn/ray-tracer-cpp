@@ -23,10 +23,10 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
             hit_anything = true;
 
             // Lambertian shading (replace this with your shading model)
-            vec3 shading_diffuse = temp_rec.material.getDiffuseColor();
-
+            vec3 diffuse_colour = temp_rec.material.getDiffuseColor();
+            vec3 ambient_part = diffuse_colour;
             // Initialize specular color
-            vec3 shading_specular(0, 0, 0);
+            vec3 collected_colour(0, 0, 0);
 
             closest_so_far = temp_rec.t;
 
@@ -36,11 +36,19 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
                 HitRecord reflected_rec;
                 if (hit(reflected_ray, t_min, t_max, reflected_rec, depth + 1)) {
                     // Combine specular reflection with shading
-                    shading_specular = reflected_rec.material.getSpecularColor();
+                    //collected_colour += phongRayShading();
+                    float kd = reflected_rec.material.getKd(); 
+                    float ks = reflected_rec.material.getKs();
+                    float specularexponent = reflected_rec.material.getSpecularexponent(); 
+
+                    vec3 diffuse_part = reflected_rec.material.getDiffuseColor();
+                    vec3 specular_part = reflected_rec.material.getSpecularColor(); 
+                    vec3 light = reflected_ray.getColor();
+                    collected_colour += kd*light + ks*light;
                 }
             }
 
-            r.setColor(r.getColor() + shading_diffuse + shading_specular);
+            r.setColor(r.getColor() + ambient_part + 0.0001*collected_colour);
             rec = temp_rec;
         }
     }
@@ -49,6 +57,21 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
 }
 
 
+
+void World::createAndLight(const nlohmann::json& jsonInput){    
+    
+    vec3 position = vec3(jsonInput["position"][0],
+                         jsonInput["position"][1],
+                         jsonInput["position"][2]);
+    double radius = 1;
+    vec3 intensity = vec3(jsonInput["intensity"][0],
+                         jsonInput["intensity"][1],
+                         jsonInput["intensity"][2]);
+
+    Sphere newSphere(position, radius);
+    newSphere.setLightColour(intensity);
+    World::addLightSource(std::make_shared<Sphere>(newSphere));
+}
 
 void World::createAndAddSphere(const nlohmann::json& jsonInput){    
     
@@ -99,8 +122,6 @@ void World::createAndAddTriangle(vec3 vertex1, vec3 vertex2, vec3 vertex3)
                           vertex3);
     World::addHittable(std::make_shared<Triangle>(newTriangle));
 }
-
-
 
 void World::createAndAddCylinder(const nlohmann::json& jsonInput)//vec3 bottomCenter, double radius, double height, vec3 normalVector)
 {
@@ -184,6 +205,15 @@ void World::loadScene(const std::string& filename, Camera& camera) {
             createAndAddTriangle(shapeInfo);
         }
         // Add more shape types as needed
+    }
+
+    const nlohmann::json& lightsInfo = sceneInfo["lightsources"];
+    for (const auto& lightInfo : lightsInfo) {
+        std::string type = lightInfo["type"];
+        if (type == "pointlight") {
+            createAndLight(lightInfo);
+        // Add more shape types as needed
+        }
     }
 }
 
