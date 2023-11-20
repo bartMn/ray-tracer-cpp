@@ -58,7 +58,7 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
                 break;
             }
         }
-        
+
         if (hit_anything_shading) {continue;}
         
         vec3 normalLightVector = (lightSource->getPosition() - temp_rec.p).return_unit();
@@ -85,7 +85,9 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
         HitRecord reflected_rec;
         if (hit(reflected_ray, t_min, t_max, reflected_rec, depth + 1)) {
             if (temp_rec.material.getIsreflective()){
-                collected_colour +=  temp_rec.material.getSpecularColor() * reflected_ray.getColor();
+
+                double dotPrd = std::max(0.0, vec3::dot(temp_rec.normal, (-1)*reflected_rec.normal));
+                collected_colour +=  dotPrd*temp_rec.material.getSpecularColor() * reflected_ray.getColor();
             }
         }
     }  
