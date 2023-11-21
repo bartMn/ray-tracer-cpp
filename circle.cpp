@@ -5,6 +5,7 @@ Circle::Circle(const vec3& center, double radius, const vec3& normal){
     this-> center= center;
     this-> radius = radius;
     this-> normal = const_cast<vec3&>(normal).return_unit();
+    this->textureIsSet = false;
 }
 
 bool Circle::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const {
@@ -34,6 +35,13 @@ bool Circle::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const
         rec.p = intersection_point;
         rec.normal = normal;
         rec.material = this-> material;
+
+        if (textureIsSet){
+            double u = 0.5 + atan2(normal.z, normal.x) / (2 * 3.14);
+            double v = 0.5 - asin(normal.y) / 3.14;
+            rec.material.setDiffuseColor(material.getTexture(u, v));
+        }
+
         return true;
     }
 
@@ -42,4 +50,9 @@ bool Circle::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const
 
 void Circle::setMaterial(Material material){
     this ->material = material;
+}
+
+void Circle::setTexture(const std::string& texturePath) {
+    this->material.setTexture(texturePath);
+    this->textureIsSet = true;
 }

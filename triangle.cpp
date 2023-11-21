@@ -34,6 +34,15 @@ bool Triangle::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) con
         rec.t = t;
         rec.p = r.pointAtParameter(rec.t);
         rec.normal = vec3::cross(edge1, edge2).return_unit();
+        
+        if (textureIsSet){
+            // Interpolate texture coordinates
+            double temp_u = u0 * (1 - u - v) + u1 * u + u2 * v;
+            double temp_v = v0_coord * (1 - u - v) + v1_coord * u + v2_coord * v;
+            // Use the getTexture function
+            rec.material.setDiffuseColor(material.getTexture(temp_u, temp_v));
+        }
+        
         return true;
     }
 
@@ -42,4 +51,19 @@ bool Triangle::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) con
 
 void Triangle::setMaterial(Material material){
     this ->material = material;
+}
+
+void Triangle::setTexture(const std::string& texturePath) {
+    this->material.setTexture(texturePath);
+    this->textureIsSet = true;
+}
+
+void Triangle::calculateTextureCoordinates() {
+    // Assuming simple mapping where texture coordinates are the same as vertex coordinates
+    u0 = v0.x;
+    v0_coord = v0.y;
+    u1 = v1.x;
+    v1_coord = v1.y;
+    u2 = v2.x;
+    v2_coord = v2.y;
 }
