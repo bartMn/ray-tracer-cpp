@@ -28,8 +28,7 @@ bool Circle::gridHit(const Ray& r, double t_min, double t_max, HitRecord& rec) c
     if (t0 >= t1)
         return false;
 
-    // Check for intersection with the cylinder
-    return hit(r, t0, t1, rec);
+    return true;
 }
 
 bool Circle::hitBoundingBox(const Ray& r, double& t0, double& t1) const {
@@ -39,14 +38,14 @@ bool Circle::hitBoundingBox(const Ray& r, double& t0, double& t1) const {
     vec3 max = (center - 0.5*cylinderHeight*normal) + vec3(radius, cylinderHeight / 2, radius);
 
     double min_arr[] = {min.x, min.y, min.z};
-    double max_arr[] = {min.x, max.y, max.z};
+    double max_arr[] = {max.x, max.y, max.z};
     vec3 ray_direction = r.getDirection();
     double ray_direction_arr[] = {ray_direction.x, ray_direction.y, ray_direction.z};
     vec3 ray_origin = r.getOrigin();
     double ray_origin_arr[] = {ray_origin.x, ray_origin.y, ray_origin.z};
 
     for (int i = 0; i < 3; ++i) {
-        double invD = 1.0 / ray_direction_arr[i];
+        double invD = 1.0 / (0.0001 + ray_direction_arr[i]);
         double tNear = (min_arr[i] - ray_origin_arr[i]) * invD;
         double tFar = (max_arr[i] - ray_origin_arr[i]) * invD;
 
@@ -66,6 +65,7 @@ bool Circle::hitBoundingBox(const Ray& r, double& t0, double& t1) const {
 bool Circle::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const {
     // Check if the ray is parallel to the circle's normal
     
+    if (!gridHit(r, t_min, t_max, rec)) return false;
     
     double denom = vec3::dot(r.getDirection(), normal);
     if (std::abs(denom) < 1e-6) {

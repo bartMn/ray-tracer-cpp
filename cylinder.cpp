@@ -27,8 +27,7 @@ bool Cylinder::gridHit(const Ray& r, double t_min, double t_max, HitRecord& rec)
     if (t0 >= t1)
         return false;
 
-    // Check for intersection with the cylinder
-    return hit(r, t0, t1, rec);
+    return true;
 }
 
 bool Cylinder::hitBoundingBox(const Ray& r, double& t0, double& t1) const {
@@ -38,14 +37,14 @@ bool Cylinder::hitBoundingBox(const Ray& r, double& t0, double& t1) const {
     vec3 max = (center + 0.5*height*axisNormal) + vec3(radius, height / 2, radius);
 
     double min_arr[] = {min.x, min.y, min.z};
-    double max_arr[] = {min.x, max.y, max.z};
+    double max_arr[] = {max.x, max.y, max.z};
     vec3 ray_direction = r.getDirection();
     double ray_direction_arr[] = {ray_direction.x, ray_direction.y, ray_direction.z};
     vec3 ray_origin = r.getOrigin();
     double ray_origin_arr[] = {ray_origin.x, ray_origin.y, ray_origin.z};
 
     for (int i = 0; i < 3; ++i) {
-        double invD = 1.0 / ray_direction_arr[i];
+        double invD = 1.0 / (0.0001 + ray_direction_arr[i]);
         double tNear = (min_arr[i] - ray_origin_arr[i]) * invD;
         double tFar = (max_arr[i] - ray_origin_arr[i]) * invD;
 
@@ -65,7 +64,7 @@ bool Cylinder::hitBoundingBox(const Ray& r, double& t0, double& t1) const {
 
 bool Cylinder::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const {
     
-    
+    if (!gridHit(r, t_min, t_max, rec)) return false;
     // Calculate the intersection of the ray with the finite cylinder
     vec3 oc = r.getOrigin() - center;
     double a = vec3::dot(r.getDirection() - axisNormal * vec3::dot(r.getDirection(), axisNormal), r.getDirection() - axisNormal * vec3::dot(r.getDirection(), axisNormal));
