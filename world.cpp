@@ -183,14 +183,16 @@ void World::createAndAddCylinder(const nlohmann::json& jsonInput)//vec3 bottomCe
                              jsonInput["axis"][1],
                              jsonInput["axis"][2]).return_unit();
 
-    vec3 bottomCenter = vec3(jsonInput["center"][0],
+    vec3 cylinderCenter = vec3(jsonInput["center"][0],
                              jsonInput["center"][1],
-                             jsonInput["center"][2]) - normalVector*(0.5*height);
+                             jsonInput["center"][2]);
+
+    vec3 bottomCenter = cylinderCenter - normalVector*(0.5*height);
 
 
     vec3 upperCenter = bottomCenter + normalVector*(0.5*height);
-    Circle topCircle (upperCenter, radius, normalVector);
-    Circle bottomCircle(bottomCenter, radius, normalVector*(-1));
+    Circle topCircle (upperCenter, radius, normalVector, height);
+    Circle bottomCircle(bottomCenter, radius, normalVector*(-1), height);
 
     Cylinder cylinder(bottomCenter, //center of the bottom circle 
                       radius,             //radious
