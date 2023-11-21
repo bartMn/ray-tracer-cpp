@@ -2,7 +2,7 @@
 #include <iostream>
 #include "Camera.h"
 #include "vector.h"
-#include "texturemapping.h"
+#include "tonemapping.h"
 
 //#include "cylinder.h"
 
