@@ -126,6 +126,11 @@ void World::createAndAddSphere(const nlohmann::json& jsonInput){
     {
         newSphere.setMaterial(Material::getMaterialFromJson(jsonInput["material"]));
     }
+    if (jsonInput.contains("texture"))
+    {
+        std::cout << "setting texture" << std::endl;
+        newSphere.setTexture(jsonInput["texture"]);
+    }
 
     World::addHittable(std::make_shared<Sphere>(newSphere));
 }

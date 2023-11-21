@@ -25,7 +25,7 @@ int returnColVal(double in_val, bool hit){
     //in_val *= 100;
     //if (in_val >255) return 255;
 
-    else return int(in_val*100);
+    else return int(in_val*150);
 }
 
 void paintPixel(vec3 color, bool hit, std::ofstream& outFile)

@@ -27,6 +27,7 @@ Material Material::getMaterial(float ks,  // Specular reflection coefficient
     material.reflectivity = reflectivity;
     material.isrefractive = isrefractive;
     material.refractiveindex = refractiveindex;
+    material.textureIsSet = false; 
 
     return material;
 }
@@ -67,3 +68,11 @@ bool Material::getIsrefractive() {return isrefractive;}
 float Material::getRefractiveindex() {return refractiveindex;};
 float Material::getKs() {return ks;}
 float Material::getKd() {return kd;}
+
+void Material::setTexture(const std::string& path) {
+    texture.loadPPM(path);
+}
+
+vec3 Material::getTexture(float u, float v) const{
+    return texture.getColor(u, v);
+}

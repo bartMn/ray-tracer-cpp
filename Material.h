@@ -7,7 +7,7 @@
 #include <iomanip>
 #include "vector.h"
 #include ".\json-develop\single_include\nlohmann\json.hpp"
-
+#include "texture.h"
 
 // Define a class for the material properties
 class Material {
@@ -21,11 +21,13 @@ private:
     float reflectivity;
     bool isrefractive;
     float refractiveindex;
+    Texture texture;
+    bool textureIsSet;
     
 public:
     // Constructor to initialize material properties
     Material() : ks(0.0), kd(0.0), specularexponent(0.0), isreflective(false),
-                reflectivity(0.0), isrefractive(false), refractiveindex(0.0) {}
+                reflectivity(0.0), isrefractive(false), refractiveindex(0.0), textureIsSet(false)  {}
 
     vec3 getDiffuseColor();
     vec3 getSpecularColor();
@@ -53,6 +55,8 @@ public:
 
     static Material getMaterialFromJson(const nlohmann::json& jsonInput);
 
+    void setTexture(const std::string& path);
+    vec3 getTexture(float u, float v) const;
 };
 
 #endif

@@ -7,13 +7,14 @@
 
 class Sphere : public Hittable {
 public:
-    Sphere() {}
-    Sphere(const vec3& center, double radius) : center(center), radius(radius) {}
+    Sphere(): textureIsSet(false) {}
+    Sphere(const vec3& center, double radius) : center(center), radius(radius), textureIsSet(false) {}
 
     vec3 getLightColour();
     void setLightColour(vec3 lightCol);
     vec3 getPosition();
     void setMaterial(Material material);
+    void setTexture(const std::string& texturePath);
     virtual bool hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const override;
 
 private:
@@ -21,6 +22,7 @@ private:
     double radius;
     Material material;
     vec3 ligthColour;
+    bool textureIsSet;
 };
 
 #endif // SPHERE_H
