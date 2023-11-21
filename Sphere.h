@@ -16,6 +16,8 @@ public:
     void setMaterial(Material material);
     void setTexture(const std::string& texturePath);
     virtual bool hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const override;
+    bool gridHit(const Ray& r, double t_min, double t_max, HitRecord& rec) const;
+    bool hitBoundingBox(const Ray& r, double t0, double t1) const;
 
 private:
     vec3 center;
