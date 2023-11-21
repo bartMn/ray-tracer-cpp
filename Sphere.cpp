@@ -1,10 +1,60 @@
 // In your cpp file, say Sphere.cpp
 #include "Sphere.h"
 
+bool Sphere::gridHit(const Ray& r, double t_min, double t_max, HitRecord& rec) const{
+    
+    double t0 = std::numeric_limits<double>::lowest();
+    double t1 = std::numeric_limits<double>::max();
+    if (!hitBoundingBox(r, t0, t1))
+        return false;
 
+    // Ensure the intersection is within the valid range
+    t0 = std::max(t0, t_min);
+    t1 = std::min(t1, t_max);
+
+    // Check if the ray misses the grid
+    if (t0 >= t1)
+        return false;
+
+    // Check for intersection with the sphere
+
+    return true;
+}
+
+bool Sphere::hitBoundingBox(const Ray& r, double t0, double t1) const{
+    // Assuming a simple bounding box for each sphere
+    vec3 center_min = center - vec3(radius, radius, radius);
+    vec3 center_max = center + vec3(radius, radius, radius);
+
+    double center_min_arr[] = {center_min.x, center_min.y, center_min.z};
+    double center_max_arr[] = {center_max.x, center_max.y, center_max.z};
+    vec3 ray_direction = r.getDirection();
+    double ray_direction_arr[] = {ray_direction.x, ray_direction.y, ray_direction.z};
+    vec3 ray_origin = r.getOrigin();
+    double ray_origin_arr[] = {ray_origin.x, ray_origin.y, ray_origin.z};
+
+    for (int i = 0; i < 3; ++i) {
+        double invD = 1.0 / ray_direction_arr[i];
+        double tNear = (center_min_arr[i] - ray_origin_arr[i]) * invD;
+        double tFar = (center_max_arr[i] - ray_origin_arr[i]) * invD;
+
+        if (invD < 0.0)
+            std::swap(tNear, tFar);
+
+        t0 = tNear > t0 ? tNear : t0;
+        t1 = tFar < t1 ? tFar : t1;
+
+        if (t0 >= t1)
+            return false;
+    }
+
+    return true;
+}
 
 bool Sphere::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const {
     
+    if (!gridHit(r, t_min, t_max, rec)) return false;
+
     vec3 oc = r.getOrigin() - center;
     double a = vec3::dot(r.getDirection(), r.getDirection());
     double b = vec3::dot(oc, r.getDirection());
