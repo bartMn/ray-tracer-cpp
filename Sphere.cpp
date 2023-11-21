@@ -2,6 +2,7 @@
 #include "Sphere.h"
 
 
+
 bool Sphere::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const {
     
     vec3 oc = r.getOrigin() - center;
@@ -17,6 +18,12 @@ bool Sphere::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const
             rec.t = temp;
             rec.p = r.pointAtParameter(rec.t);
             rec.normal = (rec.p - center) / radius;
+
+            if (textureIsSet) {
+                double u = 0.5 + atan2(rec.normal.z, rec.normal.x) / (2 * 3.14);
+                double v = 0.5 - asin(rec.normal.y) / 3.14;
+                rec.material.setDiffuseColor(material.getTexture(u, v)); // You need to implement texture sampling
+            }
             return true;
         }
         temp = (-b + sqrt(discriminant)) / a;
@@ -25,6 +32,12 @@ bool Sphere::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const
             rec.t = temp;
             rec.p = r.pointAtParameter(rec.t);
             rec.normal = (rec.p - center) / radius;
+
+            if (textureIsSet) {
+                double u = 0.5 + atan2(rec.normal.z, rec.normal.x) / (2 * 3.14);
+                double v = 0.5 - asin(rec.normal.y) / 3.14;
+                rec.material.setDiffuseColor(material.getTexture(u, v)); // You need to implement texture sampling
+            }
             return true;
         }
     }
@@ -46,4 +59,10 @@ vec3 Sphere::getLightColour(){
 vec3 Sphere::getPosition(){
     return center;
 }
+
+void Sphere::setTexture(const std::string& texturePath) {
+    this->material.setTexture(texturePath);
+    this->textureIsSet = true;
+}
+
 

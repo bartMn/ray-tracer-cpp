@@ -2,7 +2,7 @@
 #include "Cylinder.h"
 
 Cylinder::Cylinder(const vec3& center, double radius, double height, const vec3& axisNormal)
-    : center(center), radius(radius), height(height), axisNormal(const_cast<vec3&>(axisNormal).return_unit()) {}
+    : center(center), radius(radius), height(height), axisNormal(const_cast<vec3&>(axisNormal).return_unit()), textureIsSet(false) {}
 
 bool Cylinder::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const {
     
@@ -29,6 +29,19 @@ bool Cylinder::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) con
                 rec.t = root1;
                 rec.p = r.pointAtParameter(rec.t);
                 rec.normal = (rec.p - center - hit_height * axisNormal).return_unit();  // Dynamic normal calculation
+                
+                if (textureIsSet)
+                {
+                    double phi = atan2(rec.normal.z, rec.normal.x);
+                    if (phi < 0) {
+                        phi += 2 * 3.14;
+                    }
+                    double u = phi / (2 * 3.14);
+                    double v = hit_height / height;
+
+                    rec.material.setDiffuseColor(material.getTexture(u, v));
+                }
+
                 return true;
             }
         }
@@ -41,6 +54,20 @@ bool Cylinder::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) con
                 rec.t = root2;
                 rec.p = r.pointAtParameter(rec.t);
                 rec.normal = (rec.p - center - hit_height * axisNormal).return_unit();  // Dynamic normal calculation
+                
+                if (textureIsSet)
+                {
+                    // Texture mapping
+                    double phi = atan2(rec.normal.z, rec.normal.x);
+                    if (phi < 0) {
+                        phi += 2 * 3.14;
+                    }
+                    double u = phi / (2 * 3.14);
+                    double v = hit_height / height;
+
+                    rec.material.setDiffuseColor(material.getTexture(u, v));
+                }
+
                 return true;
             }
         }
@@ -51,4 +78,9 @@ bool Cylinder::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) con
 
 void Cylinder::setMaterial(Material material){
     this ->material = material;
+}
+
+void Cylinder::setTexture(const std::string& texturePath) {
+    this->material.setTexture(texturePath);
+    this->textureIsSet = true;
 }

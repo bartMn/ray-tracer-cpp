@@ -126,6 +126,11 @@ void World::createAndAddSphere(const nlohmann::json& jsonInput){
     {
         newSphere.setMaterial(Material::getMaterialFromJson(jsonInput["material"]));
     }
+    if (jsonInput.contains("texture"))
+    {
+        std::cout << "setting texture" << std::endl;
+        newSphere.setTexture(jsonInput["texture"]);
+    }
 
     World::addHittable(std::make_shared<Sphere>(newSphere));
 }
@@ -152,6 +157,11 @@ void World::createAndAddTriangle(const nlohmann::json& jsonInput)//vec3 vertex1,
     if (jsonInput.contains("material"))
     {
         newTriangle.setMaterial(Material::getMaterialFromJson(jsonInput["material"]));
+    }
+    if (jsonInput.contains("texture"))
+    {
+        std::cout << "setting texture" << std::endl;
+        newTriangle.setTexture(jsonInput["texture"]);
     }
                          
     World::addHittable(std::make_shared<Triangle>(newTriangle));
@@ -193,6 +203,13 @@ void World::createAndAddCylinder(const nlohmann::json& jsonInput)//vec3 bottomCe
         cylinder.setMaterial(Material::getMaterialFromJson(jsonInput["material"]));
         topCircle.setMaterial(Material::getMaterialFromJson(jsonInput["material"]));
         bottomCircle.setMaterial(Material::getMaterialFromJson(jsonInput["material"]));
+    }
+    if (jsonInput.contains("texture"))
+    {
+        std::cout << "setting texture" << std::endl;
+        cylinder.setTexture(jsonInput["texture"]);
+        topCircle.setTexture(jsonInput["texture"]);
+        bottomCircle.setTexture(jsonInput["texture"]);
     }
 
     World::addHittable(std::make_shared<Cylinder>(cylinder));

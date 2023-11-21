@@ -7,10 +7,11 @@
 
 class Circle : public Hittable {
 public:
-    Circle() {}
+    Circle(): textureIsSet(false){}
     Circle(const vec3& center, double radius, const vec3& normal);
     
     void setMaterial(Material material);
+    void setTexture(const std::string& texturePath);
     virtual bool hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const override;
 
 private:
@@ -18,6 +19,7 @@ private:
     double radius;
     vec3 normal;
     Material material;
+    bool textureIsSet;
 };
 
 #endif // CIRCLE_H
