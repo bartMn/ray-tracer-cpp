@@ -2,7 +2,7 @@
 #include "Sphere.h"
 
 bool Sphere::gridHit(const Ray& r, double t_min, double t_max, HitRecord& rec) const{
-    
+
     double t0 = std::numeric_limits<double>::lowest();
     double t1 = std::numeric_limits<double>::max();
     if (!hitBoundingBox(r, t0, t1))
@@ -34,7 +34,7 @@ bool Sphere::hitBoundingBox(const Ray& r, double t0, double t1) const{
     double ray_origin_arr[] = {ray_origin.x, ray_origin.y, ray_origin.z};
 
     for (int i = 0; i < 3; ++i) {
-        double invD = 1.0 / ray_direction_arr[i];
+        double invD = 1.0 / (0.0001 + ray_direction_arr[i]);
         double tNear = (center_min_arr[i] - ray_origin_arr[i]) * invD;
         double tFar = (center_max_arr[i] - ray_origin_arr[i]) * invD;
 

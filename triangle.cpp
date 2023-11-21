@@ -41,7 +41,7 @@ bool Triangle::hitBoundingBox(const Ray& r, double t0, double t1) const{
 
 
     for (int i = 0; i < 3; ++i) {
-        double invD = 1.0 / ray_direction_arr[i];
+        double invD = 1.0 / (0.0001 + ray_direction_arr[i]);
         double tNear = (min_arr[i] - ray_origin_arr[i]) * invD;
         double tFar = (max_arr[i] - ray_origin_arr[i]) * invD;
 
