@@ -9,10 +9,26 @@
 #include "hittable.h"
 #include <sstream>
 #include <thread>
-
-
+#include <stdio.h>
+#include <filesystem>
 #include <random>
 #include <fstream>
+#include "combine_ppms.h"
+
+#ifdef _WIN32
+#include <Windows.h>
+#else
+#include <unistd.h>
+#endif
+
+bool removeFile(const std::string& filePath) {
+#ifdef _WIN32
+    return DeleteFileA(filePath.c_str()) != 0;
+#else
+    return std::remove(filePath.c_str()) == 0;
+#endif
+}
+
 
 double random_double(double min, double max) {
     static std::uniform_real_distribution<double> distribution(min, max);
@@ -30,8 +46,8 @@ vec3 random_in_unit_sphere() {
 }
 
 Camera::Camera(const vec3& position, const vec3& lookAt, const vec3& up,
-               double fov, double aspectRatio, double aperture, double focusDistance, int imageWidth, bool binaryRender) {
-    setCameraParameters(position, lookAt, up, fov, aspectRatio, aperture, focusDistance, imageWidth, binaryRender);
+               double fov, double aspectRatio, double aperture, double focusDistance, int imageWidth, bool binaryRender, vec3 background) {
+    setCameraParameters(position, lookAt, up, fov, aspectRatio, aperture, focusDistance, imageWidth, binaryRender, background);
 }
 
 //Camera::Camera() {
@@ -40,12 +56,12 @@ Camera::Camera(const vec3& position, const vec3& lookAt, const vec3& up,
 vec3 Camera::getPosition() {return position;}
 
 void Camera::setCameraParameters(const vec3& position, const vec3& lookAt, const vec3& up,
-                                double fov, double aspectRatio, double aperture, double focusDistance, int imageWidth, bool binaryRender) {
+                                double fov, double aspectRatio, double aperture, double focusDistance, int imageWidth, bool binaryRender, vec3 background) {
     // Calculate camera parameters
     
     
     //double halfWidth = aspectRatio * halfHeight;
-
+    this->background = background; 
     this->imageWidth = imageWidth;
     this->imageHeight = int(imageWidth /aspectRatio);
     this->position = position;
@@ -117,7 +133,7 @@ void Camera::render(int samplesPerPixel, World world, const std::string& outputF
             }
 
             if (pixel_color.length() == 0) {
-                paintPixel(vec3(0,0,0), false, outFile);
+                paintPixel(background, false, outFile);
             } 
             else if (binaryRender){
                 paintPixel(vec3(255,0,0), true, outFile);
@@ -132,7 +148,7 @@ void Camera::render(int samplesPerPixel, World world, const std::string& outputF
 }
 
 
-void Camera::setupFromJson(const nlohmann::json& jsonInputCam, std::string RenderModeString){
+void Camera::setupFromJson(const nlohmann::json& jsonInputCam, std::string RenderModeString, vec3 background){
     //"type":"pinhole", 
     //        "width":1200, 
     //        "height":800,
@@ -142,16 +158,16 @@ void Camera::setupFromJson(const nlohmann::json& jsonInputCam, std::string Rende
     //        "fov":45.0,
     //        "exposure":0.1
     vec3 position_loc = vec3(jsonInputCam["position"][0],
-                         jsonInputCam["position"][1],
-                         jsonInputCam["position"][2]);
+                             jsonInputCam["position"][1],
+                             jsonInputCam["position"][2]);
 
     vec3 lookAt_loc = vec3(jsonInputCam["lookAt"][0],
-                       jsonInputCam["lookAt"][1],
-                       jsonInputCam["lookAt"][2]);
+                           jsonInputCam["lookAt"][1],
+                           jsonInputCam["lookAt"][2]);
 
     vec3 up_loc = vec3(jsonInputCam["upVector"][0],
-                   jsonInputCam["upVector"][1],
-                   jsonInputCam["upVector"][2]);
+                       jsonInputCam["upVector"][1],
+                       jsonInputCam["upVector"][2]);
 
     double fov_loc = jsonInputCam["fov"];
 
@@ -166,7 +182,7 @@ void Camera::setupFromJson(const nlohmann::json& jsonInputCam, std::string Rende
                         up_loc,             fov_loc,
                         aspectRatio_loc,    1,
                         1,              imageWidth_loc,
-                        binaryRender_loc);
+                        binaryRender_loc, background);
 }
 
 
@@ -241,23 +257,39 @@ void Camera::combineImagesIntoOne(const std::string& filename, const std::vector
 }
 
 
-void Camera::renderParallel(int numThreads, int samplesPerPixel, World& world, const std::vector<std::string>& chunkFiles) {
+void Camera::renderParallel(int numThreads, int samplesPerPixel, World& world, const std::string& outputFileName) {
     
     // Calculate the number of rows each thread will handle
-    numThreads = 4;
+    std::vector<std::string> temp_files;
+    for (int i=0; i<numThreads; i++){
+        temp_files.push_back( "temp_out" + std::to_string(i)+ ".ppm");
+    }
     int rowsPerThread = imageHeight / numThreads;
 
     // Create threads
-    std::string scenes[] = {"a_out1.ppm", "a_out2.ppm", "a_out3.ppm", "a_out4.ppm"};
+    
     std::vector<std::thread> threads;
     for (int t = 0; t < numThreads; ++t) {
         int startRow = t * rowsPerThread;
         int endRow = (t + 1 == numThreads) ? imageHeight : (t + 1) * rowsPerThread;
-        threads.emplace_back(std::bind(&Camera::renderChunk, this, samplesPerPixel, std::ref(world), scenes[t], startRow, endRow));
+
+        const std::string& sceneFile = temp_files[t];
+        std::cout <<sceneFile <<std::endl; 
+        threads.emplace_back(std::bind(&Camera::renderChunk, this, samplesPerPixel, std::ref(world), sceneFile, startRow, endRow));
     }
 
     // Join threads
     for (auto& thread : threads) {
         thread.join();
     }
+    
+    
+
+    // Combine images vertically
+    combineImagesVertically(temp_files, outputFileName);
+    
+    for (auto& temp_file : temp_files){
+        removeFile(temp_file);
+    }
+
 }

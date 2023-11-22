@@ -238,8 +238,7 @@ void World::loadScene(const std::string& filename, Camera& camera) {
 
     // Extract camera information
     objects.clear();
-    camera.setupFromJson(sceneJson["camera"], sceneJson["rendermode"]);
-    camPtr = &camera;
+    
     
     if (sceneJson.contains("nbounces"))
     {
@@ -253,7 +252,13 @@ void World::loadScene(const std::string& filename, Camera& camera) {
     // Extract world information
     const nlohmann::json& sceneInfo = sceneJson["scene"];
     //world.setBackgroundColor(sceneInfo["backgroundcolor"]);
+    vec3 background = vec3(sceneInfo["backgroundcolor"][0],
+                           sceneInfo["backgroundcolor"][1],
+                           sceneInfo["backgroundcolor"][2]);
 
+
+    camera.setupFromJson(sceneJson["camera"], sceneJson["rendermode"], background);
+    camPtr = &camera;
     // Extract shapes information
     const nlohmann::json& shapesInfo = sceneInfo["shapes"];
     for (const auto& shapeInfo : shapesInfo) {

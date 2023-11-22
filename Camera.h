@@ -18,20 +18,20 @@ public:
     // Constructors
     Camera() {}
     Camera(const vec3& position, const vec3& lookAt, const vec3& up, 
-           double fov, double aspectRatio, double aperture, double focusDistance, int imageWidth, bool binaryRender);
+           double fov, double aspectRatio, double aperture, double focusDistance, int imageWidth, bool binaryRender, vec3 background);
 
     // Setters for camera parameters
     void setCameraParameters(const vec3& position, const vec3& lookAt, const vec3& up,
-                             double fov, double aspectRatio, double aperture, double focusDistance, int imageWidth, bool binaryRender);
+                             double fov, double aspectRatio, double aperture, double focusDistance, int imageWidth, bool binaryRender, vec3 background);
 
     // Generate a ray for a given pixel (u, v) on the image plane
     //Ray getRay(double u, double v) const;
     void render(int samplesPerPixel, World world, const std::string& outputFile) const;
-    void setupFromJson(const nlohmann::json& jsonInputCam, std::string RenderModeString);
+    void setupFromJson(const nlohmann::json& jsonInputCam, std::string RenderModeString, vec3 background);
     vec3 getPosition();
     void renderChunk(int samplesPerPixel, World world, const std::string& outputFile, int startX, int endX/*, int startY, int endY, int samplesPerPixel, World world, const std::string& chunkFile*/) const;
     void combineImagesIntoOne(const std::string& filename, const std::vector<std::string>& chunkFiles);
-    void renderParallel(int numThreads, int samplesPerPixel, World& world, const std::vector<std::string>& chunkFiles);
+    void renderParallel(int numThreads, int samplesPerPixel, World& world, const std::string& outputFileName);
 
 private:
     vec3 position;
@@ -47,6 +47,7 @@ private:
     vec3   pixel_delta_u;  // Offset to pixel to the right
     vec3   pixel_delta_v;
     bool binaryRender;
+    vec3 background;
 };
 
 
