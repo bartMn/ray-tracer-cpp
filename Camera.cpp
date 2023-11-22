@@ -133,14 +133,14 @@ void Camera::render(int samplesPerPixel, World world, const std::string& outputF
             }
 
             if (pixel_color.length() == 0) {
-                paintPixel(background, false, outFile);
+                paintPixel(background, outFile);
             } 
             else if (binaryRender){
-                paintPixel(vec3(255,0,0), true, outFile);
+                paintPixel(vec3(255,0,0), outFile);
             }
             else{
                 pixel_color /= samplesPerPixel;
-                paintPixel(pixel_color, true, outFile);
+                paintPixel(pixel_color, outFile);
             }
         }
     }
@@ -223,16 +223,16 @@ void Camera::renderChunk(int samplesPerPixel, World world, const std::string& ou
                     } 
                 }
             }
-
+            
             if (pixel_color.length() == 0) {
-                paintPixel(vec3(0,0,0), false, outFile);
+                paintPixel(background, outFile);
             } 
             else if (binaryRender){
-                paintPixel(vec3(255,0,0), true, outFile);
+                paintPixel(vec3(255,0,0), outFile);
             }
             else{
                 pixel_color /= samplesPerPixel;
-                paintPixel(pixel_color, true, outFile);
+                paintPixel(pixel_color, outFile);
             }
         }
     }
