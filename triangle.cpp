@@ -2,7 +2,7 @@
 #include "Triangle.h"
 
 bool Triangle::gridHit(const Ray& r, double t_min, double t_max, HitRecord& rec) const{
-    
+
     double t0 = std::numeric_limits<double>::lowest();
     double t1 = std::numeric_limits<double>::max();
     if (!hitBoundingBox(r, t0, t1))
@@ -21,29 +21,49 @@ bool Triangle::gridHit(const Ray& r, double t_min, double t_max, HitRecord& rec)
     return true;
 }
 
+double distance(const vec3& p1, const vec3& p2) {
+    return std::sqrt((p1.x - p2.x) * (p1.x - p2.x) +
+                     (p1.y - p2.y) * (p1.y - p2.y) +
+                     (p1.z - p2.z) * (p1.z - p2.z));
+}
+
+double area(double a, double b, double c) {
+    double s = (a + b + c) / 2;
+    return std::sqrt(s * (s - a) * (s - b) * (s - c));
+}
+
 bool Triangle::hitBoundingBox(const Ray& r, double t0, double t1) const{
     // Assuming a simple bounding box for each sphere
-    double min_arr[3] = {0};
-    double max_arr[3] = {0};
+    
+    double a = distance(v0, v2);
+    double b = distance(v1, v2);
+    double c = distance(v1, v0);
 
-    min_arr[0] = std::min(std::min(v0.x, v1.x), v2.x);
-    min_arr[1] = std::min(std::min(v0.y, v1.y), v2.y);
-    min_arr[2] = std::min(std::min(v0.z, v1.z), v2.z);
+    double K = area(a, b, c);
+    double R = (a * b * c) / (4 * K);
+
+    // The center of the circumscribed sphere is the centroid of the triangle
+    vec3 center;
+    center.x = (v0.x + v1.x + v2.x) / 3;
+    center.y = (v0.y + v1.y + v2.y) / 3;
+    center.z = (v0.z + v1.z + v2.z) / 3;
+
+    double radius = R;
     
-    max_arr[0] = std::max(std::max(v0.x, v1.x), v2.x);
-    max_arr[1] = std::max(std::max(v0.y, v1.y), v2.y);
-    max_arr[2] = std::max(std::max(v0.z, v1.z), v2.z);
-    
+    vec3 center_min = center - vec3(radius, radius, radius);
+    vec3 center_max = center + vec3(radius, radius, radius);
+
+    double center_min_arr[] = {center_min.x, center_min.y, center_min.z};
+    double center_max_arr[] = {center_max.x, center_max.y, center_max.z};
     vec3 ray_direction = r.getDirection();
     double ray_direction_arr[] = {ray_direction.x, ray_direction.y, ray_direction.z};
     vec3 ray_origin = r.getOrigin();
     double ray_origin_arr[] = {ray_origin.x, ray_origin.y, ray_origin.z};
 
-
     for (int i = 0; i < 3; ++i) {
         double invD = 1.0 / (0.0001 + ray_direction_arr[i]);
-        double tNear = (min_arr[i] - ray_origin_arr[i]) * invD;
-        double tFar = (max_arr[i] - ray_origin_arr[i]) * invD;
+        double tNear = (center_min_arr[i] - ray_origin_arr[i]) * invD;
+        double tFar = (center_max_arr[i] - ray_origin_arr[i]) * invD;
 
         if (invD < 0.0)
             std::swap(tNear, tFar);
@@ -57,6 +77,7 @@ bool Triangle::hitBoundingBox(const Ray& r, double t0, double t1) const{
 
     return true;
 }
+
 
 
 bool Triangle::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const {

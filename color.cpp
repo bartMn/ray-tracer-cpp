@@ -19,8 +19,8 @@ void paintPixelNormalVec(double R, double G, double B, bool hit, std::ofstream& 
     outFile << ir << ' ' << ig << ' ' << ib << '\n';
 }
 
-int returnColVal(double in_val, bool hit){
-    if (!hit || in_val < 0) return 0;
+int returnColVal(double in_val){
+    if (in_val < 0) return 0;
     //in_val += 1;
     //in_val *= 100;
     //if (in_val >255) return 255;
@@ -28,11 +28,11 @@ int returnColVal(double in_val, bool hit){
     else return int(in_val*150);
 }
 
-void paintPixel(vec3 color, bool hit, std::ofstream& outFile)
+void paintPixel(vec3 color, std::ofstream& outFile)
 {
-    int ir = returnColVal(color.x, hit);
-    int ig = returnColVal(color.y, hit);
-    int ib = returnColVal(color.z, hit); 
+    int ir = returnColVal(color.x);
+    int ig = returnColVal(color.y);
+    int ib = returnColVal(color.z); 
     outFile << ir << ' ' << ig << ' ' << ib << '\n';
 }
 

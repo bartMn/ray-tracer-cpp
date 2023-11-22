@@ -14,43 +14,23 @@ int main() {
 
     Camera cam;
     //world.loadScene("D:\\labs\\MScCS\\CGr\\CGRCW2\\binary_primitves.json", cam);
-    //std::vector<std::string> scenes = {"binary_primitves", "mirror_image", "simple_phong", "scene"};
+    std::vector<std::string> scenes = {"binary_primitves", "mirror_image", "simple_phong", "scene"};
     //std::vector<std::string> scenes = {"mirror_image", "simple_phong"};
-    std::vector<std::string> scenes = {"scene"};
-
-    //std::cout << "rendering  scene" << std::endl;
-    //world.loadScene("D:\\labs\\MScCS\\CGr\\CGRCW2\\scene.json", cam);
-    //cam.renderParallel(4, 10, world, scenes);
-    //std::cout << "finished rendering scene" << std::endl;
-//
-    std::string filename = "a_combi.ppm";
-    std::vector<std::string> chunkFiles = {"a_out1.ppm", "a_out2.ppm", "a_out3.ppm", "a_out4.ppm"}; 
-    //cam.combineImagesIntoOne(filename, chunkFiles);
-
+    //std::vector<std::string> scenes = {"scene"};
+    //cam.renderParallel(5, 10, world, chunkFiles);
     
-    // Replace these with the actual names of your images
-    
-
-    // Replace this with the desired output file name
-    std::string outputFileName = "a_combined_image.ppm";
-
-    // Combine images vertically
-    combineImagesVertically(chunkFiles, outputFileName);
-
-    return 0;
-
-
-    return 0;
-
+    int threads_to_run = 10;
+    int num_of_pixel_samples = 10;
     for (const auto& scene : scenes){
         std::cout << "rendering " + scene<< std::endl;
         world.loadScene("D:\\labs\\MScCS\\CGr\\CGRCW2\\" + scene + ".json", cam);
-        cam.render(10, world, "out_" + scene + ".ppm");
+        //cam.render(10, world, "out_" + scene + ".ppm");
+        cam.renderParallel(threads_to_run, num_of_pixel_samples, world, "Aout_" + scene + ".ppm");
         std::cout << "finished rendering " + scene<< std::endl;
         
         // Replace 'input.ppm' and 'output.ppm' with your input and output file names
-        std::string inputFilename = "out_" + scene + ".ppm";
-        std::string outputFilename = "out_tonemapped_" + scene + ".ppm";
+        std::string inputFilename = "Aout_" + scene + ".ppm";
+        std::string outputFilename = "Bout_tonemapped_" + scene + ".ppm";
 
 
         // Replace 0.18 with your desired key value
