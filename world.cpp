@@ -79,7 +79,41 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
     }
                 
 
-    HitRecord reflected_rec;
+//    HitRecord reflected_rec;
+//    int numSamples = 10;
+//    // In your hit function:
+//    if (depth < maxBounces) {
+//        // Declare stddev and generator outside the loop
+//        double stddev = 0.1; // Adjust this value as needed
+//        std::default_random_engine generator;
+//
+//        for (int i = 0; i < numSamples; ++i) {
+//            // Sample random direction on the hemisphere
+//            vec3 sampledDirection = randomUnitVector(generator);
+//
+//            // Create a ray in the sampled direction
+//            Ray sampledRay(temp_rec.p, sampledDirection, vec3(0, 0, 0), depth + 1);
+//
+//            // Recursive call to trace the sampled ray
+//            HitRecord sampledRec;
+//            if (hit(sampledRay, t_min, t_max, sampledRec, depth + 1)) {
+//                if (temp_rec.material.getIsreflective()) {
+//                    double dotPrd = std::max(0.0, vec3::dot(temp_rec.normal, (-1) * sampledRec.normal));
+//                    collected_colour += dotPrd * temp_rec.material.getSpecularColor() * sampledRec.material.getDiffusecolor();
+//                }
+//            }
+//        }
+//
+//        // Average the sampled colors
+//        collected_colour /= numSamples;
+//    }
+//
+//    r.setColor(r.getColor() + ambient_part + collected_colour);
+//    rec = temp_rec;    
+//
+//    return hit_anything;
+//}
+HitRecord reflected_rec;
     if (depth < maxBounces) {
         Ray reflected_ray = compute_reflected_ray(r, temp_rec);
         HitRecord reflected_rec;
@@ -98,6 +132,32 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
     return hit_anything;
 }
 
+
+// Function to generate a random unit vector
+vec3 World::randomUnitVector(std::default_random_engine& generator) {
+    std::uniform_real_distribution<double> distribution(0.0, 1.0);
+    double theta = 2.0 * 3.14 * distribution(generator);
+    double z = 2.0 * distribution(generator) - 1.0;
+    double r = sqrt(1.0 - z * z);
+    return vec3(r * cos(theta), r * sin(theta), z);
+}
+
+
+// Function to generate a random vector with a Gaussian distribution
+vec3 World::sampleGaussian(const vec3& mean, double stddev, std::default_random_engine& generator) {
+    std::normal_distribution<double> distribution(0.0, 1.0);
+
+    // Generate random numbers
+    double x = distribution(generator);
+    double y = distribution(generator);
+    double z = distribution(generator);
+
+    // Create a random vector with a Gaussian distribution
+    vec3 randomVector(x, y, z);
+
+    // Scale and translate the vector to have the desired mean and standard deviation
+    return mean + stddev * randomVector.return_unit();
+}
 
 void World::createAndLight(const nlohmann::json& jsonInput){    
     

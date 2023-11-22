@@ -3,15 +3,17 @@
 #define WORLD_H
 
 #include <vector>
-#include "Hittable.h"
+#include <random>
 #include <memory>
+#include ".\json-develop\single_include\nlohmann\json.hpp"
+
+#include "Hittable.h"
 #include "Sphere.h"
 #include "triangle.h"
 #include "circle.h"
 #include "cylinder.h"
 #include "Camera.h"
 #include "vector.h"
-#include ".\json-develop\single_include\nlohmann\json.hpp"
 
 class Camera;
 
@@ -40,6 +42,8 @@ public:
     Ray compute_reflected_ray(Ray& r, HitRecord& rec);
 
     vec3 reflect(const vec3& v, const vec3& normal);
+    vec3 sampleGaussian(const vec3& mean, double stddev, std::default_random_engine& generator);
+    vec3 randomUnitVector(std::default_random_engine& generator);
 
 private:
     std::vector<std::shared_ptr<Hittable>> objects;
