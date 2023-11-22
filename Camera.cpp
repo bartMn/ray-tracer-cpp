@@ -29,13 +29,25 @@ bool removeFile(const std::string& filePath) {
 #endif
 }
 
-
 double random_double(double min, double max) {
     static std::uniform_real_distribution<double> distribution(min, max);
     static std::mt19937 generator;  // Mersenne Twister PRNG
     return distribution(generator);
 }
 
+inline vec3 random_in_unit_disk() {
+    while (true) {
+        auto p = vec3(random_double(-1,1), random_double(-1,1), 0);
+        if (p.length_squared() < 1)
+            return p;
+    }
+}
+
+vec3 Camera::defocus_disk_sample() const {
+        // Returns a random point in the camera defocus disk.
+        auto p = random_in_unit_disk();
+        return position + (p.x * defocus_disk_u) + (p.y * defocus_disk_v);
+    }
 
 vec3 random_in_unit_sphere() {
     while (true) {
@@ -43,6 +55,27 @@ vec3 random_in_unit_sphere() {
         if (p.length_squared() >= 1) continue;
         return p;
     }
+}
+
+vec3 Camera::pixel_sample_square() const {
+        // Returns a random point in the square surrounding a pixel at the origin.
+        auto px = -0.5 + random_double(-1,1);
+        auto py = -0.5 + random_double(-1,1);
+        return (px * pixel_delta_u) + (py * pixel_delta_v);
+    }
+
+Ray Camera::get_ray(int i, int j) const {
+        // Get a randomly-sampled camera ray for the pixel at location i,j, originating from
+        // the camera defocus disk.
+
+        auto pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
+        auto pixel_sample = pixel_center + pixel_sample_square();
+
+        //auto ray_origin = (defocus_angle <= 0) ? position : defocus_disk_sample();
+        auto ray_origin =  defocus_disk_sample();
+        auto ray_direction = pixel_sample - ray_origin;
+
+        return Ray(ray_origin, ray_direction, vec3(0,0,0), 0);
 }
 
 Camera::Camera(const vec3& position, const vec3& lookAt, const vec3& up,
@@ -91,6 +124,10 @@ void Camera::setCameraParameters(const vec3& position, const vec3& lookAt, const
     vec3 viewport_upper_left = position - (focal_length * w) - viewport_u/2 - viewport_v/2;
     pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
     this -> binaryRender = binaryRender;
+
+    auto defocus_radius = focus_dist * tan((defocus_angle * 3.14 / 180.0) / 2);
+    defocus_disk_u = u * defocus_radius;
+    defocus_disk_v = v * defocus_radius;
     
 }
 
@@ -108,13 +145,15 @@ void Camera::render(int samplesPerPixel, World world, const std::string& outputF
             vec3 temp_color(0, 0, 0);
 
             for (int s = 0; s < samplesPerPixel; ++s) {
-                double u_offset = random_double(0,1);
-                double v_offset = random_double(0,1);
+                //double u_offset = random_double(0,1);
+                //double v_offset = random_double(0,1);
 
-                vec3 pixel_center = pixel00_loc + ((i + u_offset) * pixel_delta_u) + ((j + v_offset) * pixel_delta_v);
+                //vec3 pixel_center = pixel00_loc + ((i + u_offset) * pixel_delta_u) + ((j + v_offset) * pixel_delta_v);
 
-                vec3 ray_direction = pixel_center - position;
-                Ray r(position, ray_direction.return_unit(), vec3(0, 0, 0), 0); // Initialize depth to 0
+                
+                //Ray r(position, ray_direction.return_unit(), vec3(0, 0, 0), 0); // Initialize depth to 0
+                Ray r = get_ray(i, j);
+                
                 HitRecord rec;
                 bool hit_return = world.hit(r, 0.001, std::numeric_limits<double>::infinity(), rec, 0); // Pass depth as 0
 
@@ -200,13 +239,7 @@ void Camera::renderChunk(int samplesPerPixel, World world, const std::string& ou
             vec3 temp_color(0, 0, 0);
 
             for (int s = 0; s < samplesPerPixel; ++s) {
-                double u_offset = random_double(0,1);
-                double v_offset = random_double(0,1);
-
-                vec3 pixel_center = pixel00_loc + ((i + u_offset) * pixel_delta_u) + ((j + v_offset) * pixel_delta_v);
-
-                vec3 ray_direction = pixel_center - position;
-                Ray r(position, ray_direction.return_unit(), vec3(0, 0, 0), 0); // Initialize depth to 0
+                Ray r = get_ray(i, j);
                 HitRecord rec;
                 bool hit_return = world.hit(r, 0.001, std::numeric_limits<double>::infinity(), rec, 0); // Pass depth as 0
 

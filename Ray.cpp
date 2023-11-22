@@ -13,6 +13,7 @@ Ray::Ray(const vec3& origin, const vec3& direction, const vec3& color, int depth
 
 vec3 Ray::getOrigin() const { return origin; }
 vec3 Ray::getDirection() const { return direction; }
+void Ray::setDirection(vec3 new_direction) { direction = new_direction.return_unit(); }
 vec3 Ray::getColor() const { return color; }
 void Ray::setColor(vec3 newcolor) {color = newcolor;}
 int Ray::getDepth() const { return depth; }

@@ -17,6 +17,7 @@ public:
     Ray(const vec3& origin, const vec3& direction, const vec3& color, int depth);
     vec3 getOrigin() const;
     vec3 getDirection() const;
+    void setDirection(vec3 new_direction);
     vec3 getColor() const;
     void setColor(vec3 newcolor);
     vec3 pointAtParameter(float t) const;

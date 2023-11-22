@@ -15,6 +15,8 @@ class World;
 
 class Camera {
 public:
+    double defocus_angle = 3;  // Variation angle of rays through each pixel
+    double focus_dist = 1; 
     // Constructors
     Camera() {}
     Camera(const vec3& position, const vec3& lookAt, const vec3& up, 
@@ -32,6 +34,10 @@ public:
     void renderChunk(int samplesPerPixel, World world, const std::string& outputFile, int startX, int endX/*, int startY, int endY, int samplesPerPixel, World world, const std::string& chunkFile*/) const;
     void combineImagesIntoOne(const std::string& filename, const std::vector<std::string>& chunkFiles);
     void renderParallel(int numThreads, int samplesPerPixel, World& world, const std::string& outputFileName);
+    Ray getRay(double u, double v) const;
+    vec3 defocus_disk_sample() const;
+    Ray get_ray(int i, int j) const;
+    vec3 pixel_sample_square() const;
 
 private:
     vec3 position;
@@ -48,6 +54,8 @@ private:
     vec3   pixel_delta_v;
     bool binaryRender;
     vec3 background;
+    vec3   defocus_disk_u;  // Defocus disk horizontal radius
+    vec3   defocus_disk_v;  // Defocus disk vertical radius
 };
 
 
