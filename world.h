@@ -42,8 +42,8 @@ public:
     Ray compute_reflected_ray(Ray& r, HitRecord& rec);
 
     vec3 reflect(const vec3& v, const vec3& normal);
-    vec3 sampleGaussian(const vec3& mean, double stddev, std::default_random_engine& generator);
-    vec3 randomUnitVector(std::default_random_engine& generator);
+    //vec3 sampleGaussian(const vec3& mean, double stddev, std::default_random_engine& generator);
+    vec3 randomUnitVector();
 
 private:
     std::vector<std::shared_ptr<Hittable>> objects;
