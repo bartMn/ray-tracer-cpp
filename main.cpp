@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "vector.h"
 #include "tonemapping.h"
+#include "combine_ppms.h"
 
 //#include "cylinder.h"
 
@@ -16,6 +17,30 @@ int main() {
     //std::vector<std::string> scenes = {"binary_primitves", "mirror_image", "simple_phong", "scene"};
     //std::vector<std::string> scenes = {"mirror_image", "simple_phong"};
     std::vector<std::string> scenes = {"scene"};
+
+    //std::cout << "rendering  scene" << std::endl;
+    //world.loadScene("D:\\labs\\MScCS\\CGr\\CGRCW2\\scene.json", cam);
+    //cam.renderParallel(4, 10, world, scenes);
+    //std::cout << "finished rendering scene" << std::endl;
+//
+    std::string filename = "a_combi.ppm";
+    std::vector<std::string> chunkFiles = {"a_out1.ppm", "a_out2.ppm", "a_out3.ppm", "a_out4.ppm"}; 
+    //cam.combineImagesIntoOne(filename, chunkFiles);
+
+    
+    // Replace these with the actual names of your images
+    
+
+    // Replace this with the desired output file name
+    std::string outputFileName = "a_combined_image.ppm";
+
+    // Combine images vertically
+    combineImagesVertically(chunkFiles, outputFileName);
+
+    return 0;
+
+
+    return 0;
 
     for (const auto& scene : scenes){
         std::cout << "rendering " + scene<< std::endl;
