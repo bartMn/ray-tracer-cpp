@@ -7,6 +7,8 @@
 #include "Ray.h"      // Your ray class
 #include "world.h"
 #include <fstream>
+#include <thread>
+
 #include ".\json-develop\single_include\nlohmann\json.hpp"
 
 class World;
@@ -27,6 +29,9 @@ public:
     void render(int samplesPerPixel, World world, const std::string& outputFile) const;
     void setupFromJson(const nlohmann::json& jsonInputCam, std::string RenderModeString);
     vec3 getPosition();
+    void renderChunk(int samplesPerPixel, World world, const std::string& outputFile, int startX, int endX/*, int startY, int endY, int samplesPerPixel, World world, const std::string& chunkFile*/) const;
+    void combineImagesIntoOne(const std::string& filename, const std::vector<std::string>& chunkFiles);
+    void renderParallel(int numThreads, int samplesPerPixel, World& world, const std::vector<std::string>& chunkFiles);
 
 private:
     vec3 position;

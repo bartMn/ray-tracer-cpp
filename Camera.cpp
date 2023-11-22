@@ -7,6 +7,9 @@
 #include <iostream>
 #include "color.h"
 #include "hittable.h"
+#include <sstream>
+#include <thread>
+
 
 #include <random>
 #include <fstream>
@@ -164,4 +167,97 @@ void Camera::setupFromJson(const nlohmann::json& jsonInputCam, std::string Rende
                         aspectRatio_loc,    1,
                         1,              imageWidth_loc,
                         binaryRender_loc);
+}
+
+
+void Camera::renderChunk(int samplesPerPixel, World world, const std::string& outputFile, int startX, int endX) const {
+    // Loop over each pixel in the image
+    
+    std::ofstream outFile(outputFile);
+    outFile << "P3\n" << imageWidth << ' ' << endX - startX << "\n255\n";
+
+    for (int j = startX; j < endX; ++j) {
+        //std::clog << "\rScanlines remaining: " << (imageHeight - j) << ' ' << std::flush;
+        for (int i = 0; i < imageWidth; ++i) {
+
+            vec3 pixel_color(0, 0, 0);
+            vec3 temp_color(0, 0, 0);
+
+            for (int s = 0; s < samplesPerPixel; ++s) {
+                double u_offset = random_double(0,1);
+                double v_offset = random_double(0,1);
+
+                vec3 pixel_center = pixel00_loc + ((i + u_offset) * pixel_delta_u) + ((j + v_offset) * pixel_delta_v);
+
+                vec3 ray_direction = pixel_center - position;
+                Ray r(position, ray_direction.return_unit(), vec3(0, 0, 0), 0); // Initialize depth to 0
+                HitRecord rec;
+                bool hit_return = world.hit(r, 0.001, std::numeric_limits<double>::infinity(), rec, 0); // Pass depth as 0
+
+                if (hit_return) {
+                    //vec3 target = rec.p + rec.normal + random_in_unit_sphere();
+                    //pixel_color += 0.5 * (target - rec.p).return_unit();
+                
+                    if (!binaryRender) {
+                        temp_color = r.getColor();
+                        pixel_color += temp_color;
+                    }
+                    else{
+                        pixel_color += vec3(50,50,50);
+                    } 
+                }
+            }
+
+            if (pixel_color.length() == 0) {
+                paintPixel(vec3(0,0,0), false, outFile);
+            } 
+            else if (binaryRender){
+                paintPixel(vec3(255,0,0), true, outFile);
+            }
+            else{
+                pixel_color /= samplesPerPixel;
+                paintPixel(pixel_color, true, outFile);
+            }
+        }
+    }
+    std::clog << "\rDone.                 \n";
+}
+
+
+// Function to save the image to a file
+void Camera::combineImagesIntoOne(const std::string& filename, const std::vector<std::string>& chunkFiles)
+{
+    std::ofstream outFile(filename);
+
+    // Write PPM header
+    outFile << "P3\n" << imageWidth << ' ' << imageHeight << "\n255\n";
+
+    // Concatenate individual chunk files into the final image
+    for (const auto& chunkFile : chunkFiles)
+    {
+        std::ifstream chunkInFile(chunkFile);
+        outFile << chunkInFile.rdbuf();
+    }
+}
+
+
+void Camera::renderParallel(int numThreads, int samplesPerPixel, World& world, const std::vector<std::string>& chunkFiles) {
+    
+    // Calculate the number of rows each thread will handle
+    numThreads = 4;
+    int rowsPerThread = imageHeight / numThreads;
+
+    // Create threads
+    std::string scenes[] = {"a_out1.ppm", "a_out2.ppm", "a_out3.ppm", "a_out4.ppm"};
+    std::vector<std::thread> threads;
+    for (int t = 0; t < numThreads; ++t) {
+        int startRow = t * rowsPerThread;
+        int endRow = (t + 1 == numThreads) ? imageHeight : (t + 1) * rowsPerThread;
+        threads.emplace_back(std::bind(&Camera::renderChunk, this, samplesPerPixel, std::ref(world), scenes[t], startRow, endRow));
+    }
+
+    // Join threads
+    for (auto& thread : threads) {
+        thread.join();
+    }
 }
