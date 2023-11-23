@@ -2,7 +2,7 @@
 #ifndef SPHERE_H
 #define SPHERE_H
 
-#include "Hittable.h"
+#include "hittable.h"
 #include "Material.h"
 
 class Sphere : public Hittable {

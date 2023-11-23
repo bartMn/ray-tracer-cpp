@@ -1,5 +1,5 @@
 // In your cpp file, say World.cpp
-#include "World.h"
+#include "world.h"
 #include "Material.h"
 
 
@@ -105,13 +105,13 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
             else{
                 Ray reflected_ray = compute_reflected_ray(r, temp_rec);
                 vec3 sampledDirection = randomUnitVector(temp_rec.normal);
-                
+                reflected_ray.setColor(vec3(0,0,0));
+                reflected_ray.setDirection(sampledDirection);
             // Create a ray in the sampled direction
-                Ray sampledRay(temp_rec.p, sampledDirection, vec3(0, 0, 0), depth);
 
             // Recursive call to trace the sampled ray
                 HitRecord sampledRec;
-                if (hit(sampledRay, t_min, t_max, sampledRec, depth + 1)) {
+                if (hit(reflected_ray, t_min, t_max, sampledRec, depth + 1)) {
                     double dotPrd = std::max(0.0, vec3::dot(temp_rec.normal, (-1) * sampledRec.normal));
                     collected_colour += dotPrd * temp_rec.material.getSpecularColor() * sampledRec.material.getDiffusecolor();
                     

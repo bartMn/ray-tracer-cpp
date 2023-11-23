@@ -2,7 +2,7 @@
 #ifndef CIRCLE_H
 #define CIRCLE_H
 
-#include "Hittable.h"
+#include "hittable.h"
 #include "Material.h"
 
 class Circle : public Hittable {

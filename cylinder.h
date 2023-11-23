@@ -2,7 +2,7 @@
 #ifndef CYLINDER_H
 #define CYLINDER_H
 
-#include "Hittable.h"
+#include "hittable.h"
 #include "Material.h"
 
 class Cylinder : public Hittable {
