@@ -43,7 +43,7 @@ public:
 
     vec3 reflect(const vec3& v, const vec3& normal);
     //vec3 sampleGaussian(const vec3& mean, double stddev, std::default_random_engine& generator);
-    vec3 randomUnitVector();
+    vec3 randomUnitVector(const vec3& normal);
 
 private:
     std::vector<std::shared_ptr<Hittable>> objects;

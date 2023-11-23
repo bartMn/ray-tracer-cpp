@@ -89,20 +89,32 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
 
         for (int i = 0; i < numSamples; ++i) {
             // Sample random direction on the hemispherendom_double
-            vec3 sampledDirection = 0.2*randomUnitVector();
             Ray reflected_ray = compute_reflected_ray(r, temp_rec);
-            vec3 new_direction = (reflected_ray.getDirection() + sampledDirection).return_unit();
-            reflected_ray.setDirection(new_direction);
-
+            
+            if (temp_rec.material.getIsreflective()) {
+                HitRecord reflected_rec;
+                if (depth < maxBounces) {
+                    HitRecord reflected_rec;
+                    if (hit(reflected_ray, t_min, t_max, reflected_rec, depth + 1)) {
+                            double dotPrd = std::max(0.0, vec3::dot(temp_rec.normal, (-1)*reflected_rec.normal));
+                            collected_colour +=  dotPrd*temp_rec.material.getSpecularColor() * reflected_ray.getColor();
+                    }
+                }  
+            }
+            
+            else{
+                Ray reflected_ray = compute_reflected_ray(r, temp_rec);
+                vec3 sampledDirection = randomUnitVector(temp_rec.normal);
+                
             // Create a ray in the sampled direction
-            Ray sampledRay(temp_rec.p, new_direction, vec3(0, 0, 0), depth + 1);
+                Ray sampledRay(temp_rec.p, sampledDirection, vec3(0, 0, 0), depth);
 
             // Recursive call to trace the sampled ray
-            HitRecord sampledRec;
-            if (hit(sampledRay, t_min, t_max, sampledRec, depth + 1)) {
-                if (temp_rec.material.getIsreflective()) {
+                HitRecord sampledRec;
+                if (hit(sampledRay, t_min, t_max, sampledRec, depth + 1)) {
                     double dotPrd = std::max(0.0, vec3::dot(temp_rec.normal, (-1) * sampledRec.normal));
                     collected_colour += dotPrd * temp_rec.material.getSpecularColor() * sampledRec.material.getDiffusecolor();
+                    
                 }
             }
         }
@@ -142,13 +154,18 @@ double random_doubleW(double min, double max) {
 }
 // Function to generate a random unit vector
 //vec3 World::randomUnitVector(std::default_random_engine& generator) {
-vec3 World::randomUnitVector() {
-
-    //std::uniform_real_distribution<double> distribution(0.0, 1.0);
+vec3 World::randomUnitVector(const vec3& normal) {
     double theta = 2.0 * 3.14 * random_doubleW(0.0, 1.0);
     double z = 2.0 * random_doubleW(0.0, 1.0) - 1.0;
     double r = sqrt(1.0 - z * z);
-    return vec3(r * cos(theta), r * sin(theta), z);
+
+    // Generate a random vector in the XY plane
+    vec3 randomVec(r * cos(theta), r * sin(theta), 0.0);
+
+    // Reflect the vector about the normal to ensure it's on one side of the reflection plane
+    vec3 reflectedVec = reflect(randomVec, normal);
+
+    return reflectedVec.return_unit();
 }
 
 

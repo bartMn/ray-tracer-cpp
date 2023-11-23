@@ -16,7 +16,7 @@ class World;
 class Camera {
 public:
     double defocus_angle = 3;  // Variation angle of rays through each pixel
-    double focus_dist = 1; 
+    double focus_dist = 0.5; 
     // Constructors
     Camera() {}
     Camera(const vec3& position, const vec3& lookAt, const vec3& up, 
