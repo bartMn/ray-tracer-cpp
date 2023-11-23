@@ -1,4 +1,4 @@
-// In your header file, say Cylinder.h
+// In your header file, say cylinder.h
 #ifndef CYLINDER_H
 #define CYLINDER_H
 

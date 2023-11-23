@@ -1,5 +1,5 @@
 // In your cpp file, say Triangle.cpp
-#include "Triangle.h"
+#include "triangle.h"
 
 bool Triangle::gridHit(const Ray& r, double t_min, double t_max, HitRecord& rec) const{
 

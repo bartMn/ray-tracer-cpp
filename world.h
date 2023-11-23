@@ -5,7 +5,7 @@
 #include <vector>
 #include <random>
 #include <memory>
-#include ".\json-develop\single_include\nlohmann\json.hpp"
+#include "json-develop\single_include\nlohmann\json.hpp"
 
 #include "Hittable.h"
 #include "Sphere.h"

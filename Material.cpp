@@ -3,7 +3,7 @@
 #include <sstream>
 #include <iomanip>
 #include "Material.h"
-#include ".\json-develop\single_include\nlohmann\json.hpp"
+#include "json-develop\single_include\nlohmann\json.hpp"
 
 // Function to parse the JSON file and extract material properties
 Material Material::getMaterial(float ks,  // Specular reflection coefficient

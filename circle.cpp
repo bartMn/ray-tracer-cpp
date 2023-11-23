@@ -1,5 +1,5 @@
 // In your cpp file, say Circle.cpp
-#include "Circle.h"
+#include "circle.h"
 
 Circle::Circle(const vec3& center, double radius, const vec3& normal, double cylinderHeight){
     this-> center= center;

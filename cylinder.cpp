@@ -1,12 +1,12 @@
 // In your cpp file, say Cylinder.cpp
-#include "Cylinder.h"
+#include "cylinder.h"
 
 Cylinder::Cylinder(const vec3& center, double radius, double height, const vec3& axisNormal)
     : center(center), radius(radius), height(height), axisNormal(const_cast<vec3&>(axisNormal).return_unit()), textureIsSet(false) {}
 
 
 // In your cpp file, say Cylinder.cpp
-#include "Cylinder.h"
+#include "cylinder.h"
 
 bool Cylinder::gridHit(const Ray& r, double t_min, double t_max, HitRecord& rec) const {
     // Assuming a 1x1x1 grid for simplicity

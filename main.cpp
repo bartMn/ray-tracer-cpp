@@ -19,7 +19,7 @@ int main() {
     std::vector<std::string> scenes = {"scene"};
     //cam.renderParallel(5, 10, world, chunkFiles);
     
-    int threads_to_run = 10;
+    int threads_to_run = 40;
     int num_of_pixel_samples = 10;
     for (const auto& scene : scenes){
         std::cout << "rendering " + scene<< std::endl;
