@@ -6,7 +6,7 @@
 #include <sstream>
 #include <iomanip>
 #include "vector.h"
-#include "json-develop\single_include\nlohmann\json.hpp"
+#include "json-develop/single_include/nlohmann/json.hpp"
 #include "texture.h"
 
 // Define a class for the material properties

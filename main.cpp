@@ -100,22 +100,44 @@ bool moveIntoFolder(const std::string& folderName) {
 int main() {
     
     World world;
-    std::cout<<getCurrentWorkingDirectory() <<std::endl;
+    #ifdef _WIN32
+    std::string os_sep = "\\";
+    std::string CodeLocation = getCurrentWorkingDirectory();
+    moveUpOneLevel();
+    moveIntoFolder("TestSuite");
+    std::string TestSuiteLocation = getCurrentWorkingDirectory();
+    moveUpOneLevel();
+    moveIntoFolder("Video");
+    std::string VideoLocation = getCurrentWorkingDirectory();
+    moveUpOneLevel();
+    moveIntoFolder("VideoFrames");
+    std::string VideoFramesLocation = getCurrentWorkingDirectory();
+    moveUpOneLevel();
+    moveIntoFolder("jsonFiles");
+    std::string jsonFilesLocation = getCurrentWorkingDirectory();
+    moveUpOneLevel();
+    moveIntoFolder("Code");
+    #else
+    std::string os_sep = "/";
+    std::string CodeLocation = getCurrentWorkingDirectory();
+    moveUpOneLevel();
+    std::string prjLocation = getCurrentWorkingDirectory();
+    std::string TestSuiteLocation = prjLocation +os_sep+"TestSuite";
+    std::string VideoLocation = prjLocation +os_sep+"Video";
+    std::string VideoFramesLocation = prjLocation +os_sep+"VideoFrames";
+    std::string jsonFilesLocation = prjLocation +os_sep+"jsonFiles";
+
+    #endif
     
-    std::cout << "Current Working Directory: " << getCurrentWorkingDirectory() << std::endl;
 
-    // Move up one level
-    if (moveUpOneLevel()) {
-        std::cout << "Moved up one level. Current Working Directory: " << getCurrentWorkingDirectory() << std::endl;
-    }
 
-    // Move into a folder
-    if (moveIntoFolder("TestSuite")) {
-        std::cout << "Moved into folder. Current Working Directory: " << getCurrentWorkingDirectory() << std::endl;
-    }
-
-    return 0;
-    return 0;
+    std::cout << "Code Directory: " << CodeLocation << std::endl;
+    std::cout << "TestSuiteLocation Directory: " << TestSuiteLocation << std::endl;
+    std::cout << "VideoLocation Directory: " << VideoLocation << std::endl;
+    std::cout << "VideoFramesLocation Directory: " << VideoFramesLocation << std::endl;
+    
+    std::cout << "jsonFilesLocation Directory: " << jsonFilesLocation << std::endl;
+    
     Camera cam;
     //world.loadScene("D:\\labs\\MScCS\\CGr\\CGRCW2\\binary_primitves.json", cam);
     //td::vector<std::string> scenes = {"binary_primitves", "mirror_image", "simple_phong", "scene"};
@@ -127,14 +149,16 @@ int main() {
     int num_of_pixel_samples = 10;
     for (const auto& scene : scenes){
         std::cout << "rendering " + scene<< std::endl;
-        world.loadScene("D:\\labs\\MScCS\\CGr\\CGRCW2\\" + scene + ".json", cam);
+        std::cout << jsonFilesLocation<< std::endl;
+        std::cout << jsonFilesLocation +os_sep+ scene + ".json"<< std::endl;
+        world.loadScene(jsonFilesLocation +os_sep+ scene + ".json", cam);
         //cam.render(10, world, "out_" + scene + ".ppm");
-        cam.renderParallel(threads_to_run, num_of_pixel_samples, world, "Aout_" + scene + ".ppm");
+        cam.renderParallel(threads_to_run, num_of_pixel_samples, world, TestSuiteLocation +os_sep+  scene + ".ppm");
         std::cout << "finished rendering " + scene<< std::endl;
         
         // Replace 'input.ppm' and 'output.ppm' with your input and output file names
-        std::string inputFilename = "Aout_" + scene + ".ppm";
-        std::string outputFilename = "Bout_tonemapped_" + scene + ".ppm";
+        std::string inputFilename = TestSuiteLocation +os_sep+  scene + ".ppm";
+        std::string outputFilename = TestSuiteLocation +os_sep+"tonemapped_" + scene + ".ppm";
 
 
         // Replace 0.18 with your desired key value
@@ -152,4 +176,3 @@ int main() {
         
     return 0;
 }
-
