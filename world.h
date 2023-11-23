@@ -1,13 +1,13 @@
-// In your header file, say World.h
+// In your header file, say world.h
 #ifndef WORLD_H
 #define WORLD_H
 
 #include <vector>
 #include <random>
 #include <memory>
-#include ".\json-develop\single_include\nlohmann\json.hpp"
+#include "json-develop\single_include\nlohmann\json.hpp"
 
-#include "Hittable.h"
+#include "hittable.h"
 #include "Sphere.h"
 #include "triangle.h"
 #include "circle.h"

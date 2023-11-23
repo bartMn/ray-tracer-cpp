@@ -1,8 +1,8 @@
-// In your header file, say Circle.h
+// In your header file, say circle.h
 #ifndef CIRCLE_H
 #define CIRCLE_H
 
-#include "Hittable.h"
+#include "hittable.h"
 #include "Material.h"
 
 class Circle : public Hittable {

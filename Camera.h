@@ -9,7 +9,7 @@
 #include <fstream>
 #include <thread>
 
-#include ".\json-develop\single_include\nlohmann\json.hpp"
+#include "json-develop\single_include\nlohmann\json.hpp"
 
 class World;
 

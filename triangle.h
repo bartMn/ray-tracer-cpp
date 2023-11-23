@@ -1,8 +1,8 @@
-// In your header file, say Triangle.h
+// In your header file, say triangle.h
 #ifndef TRIANGLE_H
 #define TRIANGLE_H
 
-#include "Hittable.h"
+#include "hittable.h"
 #include "Material.h"
 
 class Triangle : public Hittable {
