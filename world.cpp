@@ -2,7 +2,6 @@
 #include "world.h"
 #include "Material.h"
 
-
 Ray World::compute_reflected_ray(Ray& r, HitRecord& rec) {
     vec3 reflected_direction = reflect(r.get_normalized(), rec.normal);
     vec3 reflected_origin = rec.p + 0.01 * rec.normal; // Add a small epsilon to avoid self-intersection
@@ -80,7 +79,9 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
                 
 
     HitRecord reflected_rec;
-    int numSamples = 10;
+    int numSamples;
+    if (depth == 0) {numSamples = 10;}
+    else            {numSamples = 2;}
     // In your hit function:
     if (depth < maxBounces) {
         // Declare stddev and generator outside the loop
@@ -200,8 +201,13 @@ void World::createAndLight(const nlohmann::json& jsonInput){
     World::addLightSource(std::make_shared<Sphere>(newSphere));
 }
 
-void World::createAndAddSphere(const nlohmann::json& jsonInput){    
-    
+void World::createAndAddSphere(const nlohmann::json& jsonInput, const std::string& pathToTextures){    
+    #ifdef _WIN32
+    std::string os_sep = "\\";
+    #else
+    std::string os_sep = "/";
+    #endif
+
     vec3 position = vec3(jsonInput["center"][0],
                          jsonInput["center"][1],
                          jsonInput["center"][2]);
@@ -215,14 +221,21 @@ void World::createAndAddSphere(const nlohmann::json& jsonInput){
     if (jsonInput.contains("texture"))
     {
         std::cout << "setting texture" << std::endl;
-        newSphere.setTexture(jsonInput["texture"]);
+        std::string loc = pathToTextures +os_sep;
+        std::string ppmString = jsonInput["texture"];
+        newSphere.setTexture(loc + ppmString);
     }
 
     World::addHittable(std::make_shared<Sphere>(newSphere));
 }
 
-void World::createAndAddTriangle(const nlohmann::json& jsonInput)//vec3 vertex1, vec3 vertex2, vec3 vertex3)
+void World::createAndAddTriangle(const nlohmann::json& jsonInput, const std::string& pathToTextures)//vec3 vertex1, vec3 vertex2, vec3 vertex3)
 {
+    #ifdef _WIN32
+    std::string os_sep = "\\";
+    #else
+    std::string os_sep = "/";
+    #endif
 
     vec3 vertex1 = vec3(jsonInput["v0"][0],
                         jsonInput["v0"][1],
@@ -247,7 +260,9 @@ void World::createAndAddTriangle(const nlohmann::json& jsonInput)//vec3 vertex1,
     if (jsonInput.contains("texture"))
     {
         std::cout << "setting texture" << std::endl;
-        newTriangle.setTexture(jsonInput["texture"]);
+        std::string loc = pathToTextures +os_sep;
+        std::string ppmString = jsonInput["texture"];
+        newTriangle.setTexture(loc + ppmString);
     }
                          
     World::addHittable(std::make_shared<Triangle>(newTriangle));
@@ -260,8 +275,14 @@ void World::createAndAddTriangle(vec3 vertex1, vec3 vertex2, vec3 vertex3)
     World::addHittable(std::make_shared<Triangle>(newTriangle));
 }
 
-void World::createAndAddCylinder(const nlohmann::json& jsonInput)//vec3 bottomCenter, double radius, double height, vec3 normalVector)
+void World::createAndAddCylinder(const nlohmann::json& jsonInput, const std::string& pathToTextures)//vec3 bottomCenter, double radius, double height, vec3 normalVector)
 {
+    #ifdef _WIN32
+    std::string os_sep = "\\";
+    #else
+    std::string os_sep = "/";
+    #endif
+
     double height = jsonInput["height"];
     double radius = jsonInput["radius"];    
 
@@ -295,9 +316,11 @@ void World::createAndAddCylinder(const nlohmann::json& jsonInput)//vec3 bottomCe
     if (jsonInput.contains("texture"))
     {
         std::cout << "setting texture" << std::endl;
-        cylinder.setTexture(jsonInput["texture"]);
-        topCircle.setTexture(jsonInput["texture"]);
-        bottomCircle.setTexture(jsonInput["texture"]);
+        std::string loc = pathToTextures +os_sep;
+        std::string ppmString =jsonInput["texture"];
+        cylinder.setTexture(loc + ppmString);
+        topCircle.setTexture(loc + ppmString);
+        bottomCircle.setTexture(loc + ppmString);
     }
 
     World::addHittable(std::make_shared<Cylinder>(cylinder));
@@ -317,7 +340,8 @@ void World::createAndAddFloor(vec3 floorCenter, double floorSize){
 }
 
 
-void World::loadScene(const std::string& filename, Camera& camera) {
+void World::loadScene(const std::string& filename, Camera& camera, const std::string& pathToTextures) {
+    
     std::ifstream file(filename);
     nlohmann::json sceneJson;
     file >> sceneJson;
@@ -350,11 +374,11 @@ void World::loadScene(const std::string& filename, Camera& camera) {
     for (const auto& shapeInfo : shapesInfo) {
         std::string type = shapeInfo["type"];
         if (type == "sphere") {
-            createAndAddSphere(shapeInfo);
+            createAndAddSphere(shapeInfo, pathToTextures);
         } else if (type == "cylinder") {
-            createAndAddCylinder(shapeInfo);
+            createAndAddCylinder(shapeInfo, pathToTextures);
         } else if (type == "triangle") {
-            createAndAddTriangle(shapeInfo);
+            createAndAddTriangle(shapeInfo, pathToTextures);
         }
         // Add more shape types as needed
     }
