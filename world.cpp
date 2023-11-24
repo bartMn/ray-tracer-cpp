@@ -179,7 +179,7 @@ void World::createAndLight(const nlohmann::json& jsonInput){
     Sphere newSphere(position, radius);
     newSphere.setLightColour(intensity);
     World::addLightSource(std::make_shared<Sphere>(newSphere));
-    World::addHittable(std::make_shared<Sphere>(newSphere));
+    //World::addHittable(std::make_shared<Sphere>(newSphere));
 }
 
 void World::createAndAddSphere(const nlohmann::json& jsonInput, const std::string& pathToTextures){    

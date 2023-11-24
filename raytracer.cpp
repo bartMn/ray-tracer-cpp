@@ -140,9 +140,9 @@ int main() {
     
     Camera cam;
     //world.loadScene("D:\\labs\\MScCS\\CGr\\CGRCW2\\binary_primitves.json", cam);
-    std::vector<std::string> scenes = {"binary_primitves", "mirror_image", "simple_phong", "scene", "scene2"};
+    //std::vector<std::string> scenes = {"binary_primitves", "mirror_image", "simple_phong", "scene", "scene2"};
     //std::vector<std::string> scenes = {"mirror_image", "simple_phong"};
-    //std::vector<std::string> scenes = {"scene2"};
+    std::vector<std::string> scenes = {"scene"};
     //cam.renderParallel(5, 10, world, chunkFiles);
     
     int threads_to_run = 10;
