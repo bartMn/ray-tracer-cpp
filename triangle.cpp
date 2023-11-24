@@ -123,7 +123,7 @@ bool Triangle::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) con
             // Use the getTexture function
             rec.material.setDiffuseColor(material.getTexture(temp_u, temp_v));
         }
-        
+        rec.normal.return_unit();
         return true;
     }
 

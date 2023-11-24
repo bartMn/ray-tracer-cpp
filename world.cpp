@@ -9,7 +9,7 @@ Ray World::compute_reflected_ray(Ray& r, HitRecord& rec) {
 }
 
 vec3 World::reflect(const vec3& v, const vec3& normal) {
-    return v - 2 * vec3::dot(v, normal) * normal;
+    return (v - 2 * vec3::dot(v, normal) * normal).return_unit();
 }
 
 bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
@@ -82,7 +82,8 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
 
     HitRecord reflected_rec;
     int numSamples;
-    if (depth == 0) {numSamples = 10;}
+    if (depth == 0) {numSamples = 15;}
+    else if (depth < 2) {numSamples = 2;}
     else            {numSamples = 1;}
     // In your hit function:
     if (depth < maxBounces) {
@@ -135,24 +136,7 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
 
     return hit_anything;
 }
-    //HitRecord reflected_rec;
-    //    if (depth < maxBounces) {
-    //        Ray reflected_ray = compute_reflected_ray(r, temp_rec);
-    //        HitRecord reflected_rec;
-    //        if (hit(reflected_ray, t_min, t_max, reflected_rec, depth + 1)) {
-    //            if (temp_rec.material.getIsreflective()){
-                //
-    //                double dotPrd = std::max(0.0, vec3::dot(temp_rec.normal, (-1)*reflected_rec.normal));
-    //                collected_colour +=  dotPrd*temp_rec.material.getSpecularColor() * reflected_ray.getColor();
-    //            }
-    //        }
-//    //    }  
-//
-//    r.setColor(r.getColor() + ambient_part + collected_colour);
-//    rec = temp_rec;    
-//
-//    return hit_anything;
-//}
+
 
 double random_doubleW(double min, double max) {
     static std::uniform_real_distribution<double> distribution(min, max);
@@ -162,35 +146,25 @@ double random_doubleW(double min, double max) {
 // Function to generate a random unit vector
 //vec3 World::randomUnitVector(std::default_random_engine& generator) {
 vec3 World::randomUnitVector(const vec3& normal) {
-    double theta = 2.0 * 3.14 * random_doubleW(0.0, 1.0);
-    double z = 2.0 * random_doubleW(0.0, 1.0) - 1.0;
-    double r = sqrt(1.0 - z * z);
+    double x=  random_doubleW(0.0, 1.0);
+    double y = random_doubleW(0.0, 1.0);
+    double z = random_doubleW(0.0, 1.0);
 
     // Generate a random vector in the XY plane
-    vec3 randomVec(r * cos(theta), r * sin(theta), 0.0);
+    vec3 randomVec(x, y, z);
 
     // Reflect the vector about the normal to ensure it's on one side of the reflection plane
-    vec3 reflectedVec = reflect(randomVec, normal);
-
+    double dotProduct = vec3::dot(randomVec.return_unit(), normal);
+    vec3 reflectedVec;
+    if (dotProduct <0){
+       reflectedVec = (-1)*randomVec;
+    }
+    else{
+        reflectedVec = randomVec;
+    }
     return reflectedVec.return_unit();
 }
 
-
-// Function to generate a random vector with a Gaussian distribution
-//vec3 World::sampleGaussian(const vec3& mean, double stddev, std::default_random_engine& generator) {
-//    std::normal_distribution<double> distribution(0.0, 1.0);
-//
-//    // Generate random numbers
-//    double x = distribution(generator);
-//    double y = distribution(generator);
-//    double z = distribution(generator);
-//
-//    // Create a random vector with a Gaussian distribution
-//    vec3 randomVector(x, y, z);
-//
-//    // Scale and translate the vector to have the desired mean and standard deviation
-//    return mean + stddev * randomVector.return_unit();
-//}
 
 void World::createAndLight(const nlohmann::json& jsonInput){    
     
@@ -205,6 +179,7 @@ void World::createAndLight(const nlohmann::json& jsonInput){
     Sphere newSphere(position, radius);
     newSphere.setLightColour(intensity);
     World::addLightSource(std::make_shared<Sphere>(newSphere));
+    World::addHittable(std::make_shared<Sphere>(newSphere));
 }
 
 void World::createAndAddSphere(const nlohmann::json& jsonInput, const std::string& pathToTextures){    
@@ -354,6 +329,7 @@ void World::loadScene(const std::string& filename, Camera& camera, const std::st
 
     // Extract camera information
     objects.clear();
+    lightSources.clear();
     
     
     if (sceneJson.contains("nbounces"))
@@ -400,4 +376,3 @@ void World::loadScene(const std::string& filename, Camera& camera, const std::st
         }
     }
 }
-

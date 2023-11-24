@@ -96,7 +96,7 @@ bool Circle::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const
             double v = 0.5 - asin(normal.y) / 3.14;
             rec.material.setDiffuseColor(material.getTexture(u, v));
         }
-
+        rec.normal.return_unit();
         return true;
     }
 
