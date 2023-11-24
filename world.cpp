@@ -16,6 +16,7 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
     HitRecord temp_rec;
     bool hit_anything = false;
     double closest_so_far = t_max;
+    int numOfNotReachingLights = 0;
 
     for (const auto& object : objects) 
     {
@@ -29,7 +30,8 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
     vec3 diffuse_colour = temp_rec.material.getDiffuseColor();
     vec3 ambient_part = diffuse_colour;
     // Initialize specular color
-    vec3 collected_colour(0, 0, 0);
+    vec3 collected_colour = vec3(0,0,0);
+    vec3 colour_shading = vec3(0,0,0);
     float kd ; 
     float ks ;
     float specularexponent ; 
@@ -54,7 +56,7 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
             if (object->hit(r_shading, t_min, closest_so_far_shading, temp_rec_shading)) 
             {
                 hit_anything_shading = true;
-                break;
+                numOfNotReachingLights += 1;
             }
         }
 
@@ -74,14 +76,14 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
         diffuse_part = kd * diffuseDot * temp_rec.material.getDiffuseColor() * lightSource->getLightColour();
         specular_part = ks * expoResult * temp_rec.material.getSpecularColor() * lightSource->getLightColour();
         //light = reflected_ray.getColor();
-        collected_colour += diffuse_part + specular_part;
+        colour_shading += diffuse_part + specular_part;
     }
                 
 
     HitRecord reflected_rec;
     int numSamples;
     if (depth == 0) {numSamples = 10;}
-    else            {numSamples = 2;}
+    else            {numSamples = 1;}
     // In your hit function:
     if (depth < maxBounces) {
         // Declare stddev and generator outside the loop
@@ -91,21 +93,23 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
         for (int i = 0; i < numSamples; ++i) {
             // Sample random direction on the hemispherendom_double
             Ray reflected_ray = compute_reflected_ray(r, temp_rec);
-            
+            vec3 sampledDirection = randomUnitVector(temp_rec.normal);
+            reflected_ray.setColor(vec3(0,0,0));
             if (temp_rec.material.getIsreflective()) {
                 HitRecord reflected_rec;
+                vec3 updatedDirection = temp_rec.material.getReflectivity()*reflected_ray.getDirection() + (1.0-temp_rec.material.getReflectivity())*sampledDirection;
+                reflected_ray.setDirection(updatedDirection);
                 if (depth < maxBounces) {
                     HitRecord reflected_rec;
                     if (hit(reflected_ray, t_min, t_max, reflected_rec, depth + 1)) {
                             double dotPrd = std::max(0.0, vec3::dot(temp_rec.normal, (-1)*reflected_rec.normal));
-                            collected_colour +=  dotPrd*temp_rec.material.getSpecularColor() * reflected_ray.getColor();
+                            collected_colour +=  (1.0/numSamples)*dotPrd*temp_rec.material.getSpecularColor() * reflected_ray.getColor();
                     }
                 }  
             }
             
             else{
                 Ray reflected_ray = compute_reflected_ray(r, temp_rec);
-                vec3 sampledDirection = randomUnitVector(temp_rec.normal);
                 reflected_ray.setColor(vec3(0,0,0));
                 reflected_ray.setDirection(sampledDirection);
             // Create a ray in the sampled direction
@@ -114,17 +118,19 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
                 HitRecord sampledRec;
                 if (hit(reflected_ray, t_min, t_max, sampledRec, depth + 1)) {
                     double dotPrd = std::max(0.0, vec3::dot(temp_rec.normal, (-1) * sampledRec.normal));
-                    collected_colour += dotPrd * temp_rec.material.getSpecularColor() * sampledRec.material.getDiffusecolor();
+                    collected_colour += (1.0/numSamples)*dotPrd * temp_rec.material.getSpecularColor() * sampledRec.material.getDiffusecolor();
                     
                 }
             }
         }
 
         // Average the sampled colors
-        collected_colour /= numSamples;
+        //collected_colour /= numSamples;
+        //collected_colour /= numOfNotReachingLights+1;
     }
 
-    r.setColor(r.getColor() + ambient_part + collected_colour);
+    //r.setColor(r.getColor() + ambient_part + collected_colour);
+    r.setColor(ambient_part + collected_colour + colour_shading);
     rec = temp_rec;    
 
     return hit_anything;
