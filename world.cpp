@@ -2,7 +2,6 @@
 #include "world.h"
 #include "Material.h"
 
-
 Ray World::compute_reflected_ray(Ray& r, HitRecord& rec) {
     vec3 reflected_direction = reflect(r.get_normalized(), rec.normal);
     vec3 reflected_origin = rec.p + 0.01 * rec.normal; // Add a small epsilon to avoid self-intersection
@@ -10,13 +9,14 @@ Ray World::compute_reflected_ray(Ray& r, HitRecord& rec) {
 }
 
 vec3 World::reflect(const vec3& v, const vec3& normal) {
-    return v - 2 * vec3::dot(v, normal) * normal;
+    return (v - 2 * vec3::dot(v, normal) * normal).return_unit();
 }
 
 bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
     HitRecord temp_rec;
     bool hit_anything = false;
     double closest_so_far = t_max;
+    int numOfNotReachingLights = 0;
 
     for (const auto& object : objects) 
     {
@@ -30,7 +30,8 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
     vec3 diffuse_colour = temp_rec.material.getDiffuseColor();
     vec3 ambient_part = diffuse_colour;
     // Initialize specular color
-    vec3 collected_colour(0, 0, 0);
+    vec3 collected_colour = vec3(0,0,0);
+    vec3 colour_shading = vec3(0,0,0);
     float kd ; 
     float ks ;
     float specularexponent ; 
@@ -55,7 +56,7 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
             if (object->hit(r_shading, t_min, closest_so_far_shading, temp_rec_shading)) 
             {
                 hit_anything_shading = true;
-                break;
+                numOfNotReachingLights += 1;
             }
         }
 
@@ -75,12 +76,15 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
         diffuse_part = kd * diffuseDot * temp_rec.material.getDiffuseColor() * lightSource->getLightColour();
         specular_part = ks * expoResult * temp_rec.material.getSpecularColor() * lightSource->getLightColour();
         //light = reflected_ray.getColor();
-        collected_colour += diffuse_part + specular_part;
+        colour_shading += diffuse_part + specular_part;
     }
                 
 
     HitRecord reflected_rec;
-    int numSamples = 10;
+    int numSamples;
+    if (depth == 0) {numSamples = 15;}
+    else if (depth < 2) {numSamples = 2;}
+    else            {numSamples = 1;}
     // In your hit function:
     if (depth < maxBounces) {
         // Declare stddev and generator outside the loop
@@ -90,21 +94,23 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
         for (int i = 0; i < numSamples; ++i) {
             // Sample random direction on the hemispherendom_double
             Ray reflected_ray = compute_reflected_ray(r, temp_rec);
-            
+            vec3 sampledDirection = randomUnitVector(temp_rec.normal);
+            reflected_ray.setColor(vec3(0,0,0));
             if (temp_rec.material.getIsreflective()) {
                 HitRecord reflected_rec;
+                vec3 updatedDirection = temp_rec.material.getReflectivity()*reflected_ray.getDirection() + (1.0-temp_rec.material.getReflectivity())*sampledDirection;
+                reflected_ray.setDirection(updatedDirection);
                 if (depth < maxBounces) {
                     HitRecord reflected_rec;
                     if (hit(reflected_ray, t_min, t_max, reflected_rec, depth + 1)) {
                             double dotPrd = std::max(0.0, vec3::dot(temp_rec.normal, (-1)*reflected_rec.normal));
-                            collected_colour +=  dotPrd*temp_rec.material.getSpecularColor() * reflected_ray.getColor();
+                            collected_colour +=  (1.0/numSamples)*dotPrd*temp_rec.material.getSpecularColor() * reflected_ray.getColor();
                     }
                 }  
             }
             
             else{
                 Ray reflected_ray = compute_reflected_ray(r, temp_rec);
-                vec3 sampledDirection = randomUnitVector(temp_rec.normal);
                 reflected_ray.setColor(vec3(0,0,0));
                 reflected_ray.setDirection(sampledDirection);
             // Create a ray in the sampled direction
@@ -113,39 +119,24 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
                 HitRecord sampledRec;
                 if (hit(reflected_ray, t_min, t_max, sampledRec, depth + 1)) {
                     double dotPrd = std::max(0.0, vec3::dot(temp_rec.normal, (-1) * sampledRec.normal));
-                    collected_colour += dotPrd * temp_rec.material.getSpecularColor() * sampledRec.material.getDiffusecolor();
+                    collected_colour += (1.0/numSamples)*dotPrd * temp_rec.material.getSpecularColor() * sampledRec.material.getDiffusecolor();
                     
                 }
             }
         }
 
         // Average the sampled colors
-        collected_colour /= numSamples;
+        //collected_colour /= numSamples;
+        //collected_colour /= numOfNotReachingLights+1;
     }
 
-    r.setColor(r.getColor() + ambient_part + collected_colour);
+    //r.setColor(r.getColor() + ambient_part + collected_colour);
+    r.setColor(ambient_part + collected_colour + colour_shading);
     rec = temp_rec;    
 
     return hit_anything;
 }
-    //HitRecord reflected_rec;
-    //    if (depth < maxBounces) {
-    //        Ray reflected_ray = compute_reflected_ray(r, temp_rec);
-    //        HitRecord reflected_rec;
-    //        if (hit(reflected_ray, t_min, t_max, reflected_rec, depth + 1)) {
-    //            if (temp_rec.material.getIsreflective()){
-                //
-    //                double dotPrd = std::max(0.0, vec3::dot(temp_rec.normal, (-1)*reflected_rec.normal));
-    //                collected_colour +=  dotPrd*temp_rec.material.getSpecularColor() * reflected_ray.getColor();
-    //            }
-    //        }
-//    //    }  
-//
-//    r.setColor(r.getColor() + ambient_part + collected_colour);
-//    rec = temp_rec;    
-//
-//    return hit_anything;
-//}
+
 
 double random_doubleW(double min, double max) {
     static std::uniform_real_distribution<double> distribution(min, max);
@@ -155,35 +146,25 @@ double random_doubleW(double min, double max) {
 // Function to generate a random unit vector
 //vec3 World::randomUnitVector(std::default_random_engine& generator) {
 vec3 World::randomUnitVector(const vec3& normal) {
-    double theta = 2.0 * 3.14 * random_doubleW(0.0, 1.0);
-    double z = 2.0 * random_doubleW(0.0, 1.0) - 1.0;
-    double r = sqrt(1.0 - z * z);
+    double x=  random_doubleW(0.0, 1.0);
+    double y = random_doubleW(0.0, 1.0);
+    double z = random_doubleW(0.0, 1.0);
 
     // Generate a random vector in the XY plane
-    vec3 randomVec(r * cos(theta), r * sin(theta), 0.0);
+    vec3 randomVec(x, y, z);
 
     // Reflect the vector about the normal to ensure it's on one side of the reflection plane
-    vec3 reflectedVec = reflect(randomVec, normal);
-
+    double dotProduct = vec3::dot(randomVec.return_unit(), normal);
+    vec3 reflectedVec;
+    if (dotProduct <0){
+       reflectedVec = (-1)*randomVec;
+    }
+    else{
+        reflectedVec = randomVec;
+    }
     return reflectedVec.return_unit();
 }
 
-
-// Function to generate a random vector with a Gaussian distribution
-//vec3 World::sampleGaussian(const vec3& mean, double stddev, std::default_random_engine& generator) {
-//    std::normal_distribution<double> distribution(0.0, 1.0);
-//
-//    // Generate random numbers
-//    double x = distribution(generator);
-//    double y = distribution(generator);
-//    double z = distribution(generator);
-//
-//    // Create a random vector with a Gaussian distribution
-//    vec3 randomVector(x, y, z);
-//
-//    // Scale and translate the vector to have the desired mean and standard deviation
-//    return mean + stddev * randomVector.return_unit();
-//}
 
 void World::createAndLight(const nlohmann::json& jsonInput){    
     
@@ -198,10 +179,16 @@ void World::createAndLight(const nlohmann::json& jsonInput){
     Sphere newSphere(position, radius);
     newSphere.setLightColour(intensity);
     World::addLightSource(std::make_shared<Sphere>(newSphere));
+    World::addHittable(std::make_shared<Sphere>(newSphere));
 }
 
-void World::createAndAddSphere(const nlohmann::json& jsonInput){    
-    
+void World::createAndAddSphere(const nlohmann::json& jsonInput, const std::string& pathToTextures){    
+    #ifdef _WIN32
+    std::string os_sep = "\\";
+    #else
+    std::string os_sep = "/";
+    #endif
+
     vec3 position = vec3(jsonInput["center"][0],
                          jsonInput["center"][1],
                          jsonInput["center"][2]);
@@ -215,14 +202,21 @@ void World::createAndAddSphere(const nlohmann::json& jsonInput){
     if (jsonInput.contains("texture"))
     {
         std::cout << "setting texture" << std::endl;
-        newSphere.setTexture(jsonInput["texture"]);
+        std::string loc = pathToTextures +os_sep;
+        std::string ppmString = jsonInput["texture"];
+        newSphere.setTexture(loc + ppmString);
     }
 
     World::addHittable(std::make_shared<Sphere>(newSphere));
 }
 
-void World::createAndAddTriangle(const nlohmann::json& jsonInput)//vec3 vertex1, vec3 vertex2, vec3 vertex3)
+void World::createAndAddTriangle(const nlohmann::json& jsonInput, const std::string& pathToTextures)//vec3 vertex1, vec3 vertex2, vec3 vertex3)
 {
+    #ifdef _WIN32
+    std::string os_sep = "\\";
+    #else
+    std::string os_sep = "/";
+    #endif
 
     vec3 vertex1 = vec3(jsonInput["v0"][0],
                         jsonInput["v0"][1],
@@ -247,7 +241,9 @@ void World::createAndAddTriangle(const nlohmann::json& jsonInput)//vec3 vertex1,
     if (jsonInput.contains("texture"))
     {
         std::cout << "setting texture" << std::endl;
-        newTriangle.setTexture(jsonInput["texture"]);
+        std::string loc = pathToTextures +os_sep;
+        std::string ppmString = jsonInput["texture"];
+        newTriangle.setTexture(loc + ppmString);
     }
                          
     World::addHittable(std::make_shared<Triangle>(newTriangle));
@@ -260,8 +256,14 @@ void World::createAndAddTriangle(vec3 vertex1, vec3 vertex2, vec3 vertex3)
     World::addHittable(std::make_shared<Triangle>(newTriangle));
 }
 
-void World::createAndAddCylinder(const nlohmann::json& jsonInput)//vec3 bottomCenter, double radius, double height, vec3 normalVector)
+void World::createAndAddCylinder(const nlohmann::json& jsonInput, const std::string& pathToTextures)//vec3 bottomCenter, double radius, double height, vec3 normalVector)
 {
+    #ifdef _WIN32
+    std::string os_sep = "\\";
+    #else
+    std::string os_sep = "/";
+    #endif
+
     double height = jsonInput["height"];
     double radius = jsonInput["radius"];    
 
@@ -295,9 +297,11 @@ void World::createAndAddCylinder(const nlohmann::json& jsonInput)//vec3 bottomCe
     if (jsonInput.contains("texture"))
     {
         std::cout << "setting texture" << std::endl;
-        cylinder.setTexture(jsonInput["texture"]);
-        topCircle.setTexture(jsonInput["texture"]);
-        bottomCircle.setTexture(jsonInput["texture"]);
+        std::string loc = pathToTextures +os_sep;
+        std::string ppmString =jsonInput["texture"];
+        cylinder.setTexture(loc + ppmString);
+        topCircle.setTexture(loc + ppmString);
+        bottomCircle.setTexture(loc + ppmString);
     }
 
     World::addHittable(std::make_shared<Cylinder>(cylinder));
@@ -317,13 +321,15 @@ void World::createAndAddFloor(vec3 floorCenter, double floorSize){
 }
 
 
-void World::loadScene(const std::string& filename, Camera& camera) {
+void World::loadScene(const std::string& filename, Camera& camera, const std::string& pathToTextures) {
+    
     std::ifstream file(filename);
     nlohmann::json sceneJson;
     file >> sceneJson;
 
     // Extract camera information
     objects.clear();
+    lightSources.clear();
     
     
     if (sceneJson.contains("nbounces"))
@@ -350,11 +356,11 @@ void World::loadScene(const std::string& filename, Camera& camera) {
     for (const auto& shapeInfo : shapesInfo) {
         std::string type = shapeInfo["type"];
         if (type == "sphere") {
-            createAndAddSphere(shapeInfo);
+            createAndAddSphere(shapeInfo, pathToTextures);
         } else if (type == "cylinder") {
-            createAndAddCylinder(shapeInfo);
+            createAndAddCylinder(shapeInfo, pathToTextures);
         } else if (type == "triangle") {
-            createAndAddTriangle(shapeInfo);
+            createAndAddTriangle(shapeInfo, pathToTextures);
         }
         // Add more shape types as needed
     }
@@ -370,4 +376,3 @@ void World::loadScene(const std::string& filename, Camera& camera) {
         }
     }
 }
-

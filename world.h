@@ -3,6 +3,8 @@
 #define WORLD_H
 
 #include <vector>
+#include <iostream>
+#include <string>
 #include <random>
 #include <memory>
 #include "json-develop/single_include/nlohmann/json.hpp"
@@ -30,12 +32,12 @@ public:
     }
 
     void createAndLight(const nlohmann::json& jsonInput);
-    void createAndAddTriangle(const nlohmann::json& jsonInput);
+    void createAndAddTriangle(const nlohmann::json& jsonInput, const std::string& pathToTextures);
     void createAndAddTriangle(vec3 vertex1, vec3 vertex2, vec3 vertex3);
-    void createAndAddSphere(const nlohmann::json& jsonInput);    
-    void createAndAddCylinder(const nlohmann::json& jsonInput);
+    void createAndAddSphere(const nlohmann::json& jsonInput, const std::string& pathToTextures);    
+    void createAndAddCylinder(const nlohmann::json& jsonInput, const std::string& pathToTextures);
     void createAndAddFloor(vec3 floorCenter, double floorSize);
-    void loadScene(const std::string& filename, Camera& camera);
+    void loadScene(const std::string& filename, Camera& camera, const std::string& pathToTextures);
 
     bool hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth);
 

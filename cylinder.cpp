@@ -99,7 +99,7 @@ bool Cylinder::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) con
 
                     rec.material.setDiffuseColor(material.getTexture(u, v));
                 }
-
+                rec.normal.return_unit();
                 return true;
             }
         }
@@ -125,7 +125,7 @@ bool Cylinder::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) con
 
                     rec.material.setDiffuseColor(material.getTexture(u, v));
                 }
-
+                rec.normal.return_unit();
                 return true;
             }
         }

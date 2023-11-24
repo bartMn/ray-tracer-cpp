@@ -140,18 +140,18 @@ int main() {
     
     Camera cam;
     //world.loadScene("D:\\labs\\MScCS\\CGr\\CGRCW2\\binary_primitves.json", cam);
-    //td::vector<std::string> scenes = {"binary_primitves", "mirror_image", "simple_phong", "scene"};
+    std::vector<std::string> scenes = {"binary_primitves", "mirror_image", "simple_phong", "scene", "scene2"};
     //std::vector<std::string> scenes = {"mirror_image", "simple_phong"};
-    std::vector<std::string> scenes = {"scene"};
+    //std::vector<std::string> scenes = {"scene2"};
     //cam.renderParallel(5, 10, world, chunkFiles);
     
-    int threads_to_run = 40;
+    int threads_to_run = 10;
     int num_of_pixel_samples = 10;
     for (const auto& scene : scenes){
         std::cout << "rendering " + scene<< std::endl;
         std::cout << jsonFilesLocation<< std::endl;
         std::cout << jsonFilesLocation +os_sep+ scene + ".json"<< std::endl;
-        world.loadScene(jsonFilesLocation +os_sep+ scene + ".json", cam);
+        world.loadScene(jsonFilesLocation +os_sep+ scene + ".json", cam, jsonFilesLocation);
         //cam.render(10, world, "out_" + scene + ".ppm");
         cam.renderParallel(threads_to_run, num_of_pixel_samples, world, TestSuiteLocation +os_sep+  scene + ".ppm");
         std::cout << "finished rendering " + scene<< std::endl;

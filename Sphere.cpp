@@ -74,6 +74,7 @@ bool Sphere::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const
                 double v = 0.5 - asin(rec.normal.y) / 3.14;
                 rec.material.setDiffuseColor(material.getTexture(u, v)); // You need to implement texture sampling
             }
+            rec.normal.return_unit();
             return true;
         }
         temp = (-b + sqrt(discriminant)) / a;
@@ -88,6 +89,7 @@ bool Sphere::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const
                 double v = 0.5 - asin(rec.normal.y) / 3.14;
                 rec.material.setDiffuseColor(material.getTexture(u, v)); // You need to implement texture sampling
             }
+            rec.normal.return_unit();
             return true;
         }
     }
