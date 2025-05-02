@@ -1,23 +1,46 @@
-// In your cpp file, say World.cpp
 #include "world.h"
 #include "Material.h"
 
+// Computes the reflected ray.
+/**
+ * @param r The incoming ray.
+ * @param rec The hit record containing intersection details.
+ * @return The reflected ray.
+ */
 Ray World::compute_reflected_ray(Ray& r, HitRecord& rec) {
     vec3 reflected_direction = reflect(r.get_normalized(), rec.normal);
     vec3 reflected_origin = rec.p + 0.01 * rec.normal; // Add a small epsilon to avoid self-intersection
     return Ray(reflected_origin, reflected_direction, vec3(0, 0, 0), r.getDepth() + 1);
 }
 
+
+// Reflects a vector around a normal.
+/**
+ * @param v The vector to reflect.
+ * @param normal The normal vector.
+ * @return The reflected vector.
+ */
 vec3 World::reflect(const vec3& v, const vec3& normal) {
     return (v - 2 * vec3::dot(v, normal) * normal).return_unit();
 }
 
+
+// Checks for ray-object intersections and computes shading.
+/**
+ * @param r The ray to test.
+ * @param t_min The minimum t value for a valid hit.
+ * @param t_max The maximum t value for a valid hit.
+ * @param rec The record to store hit information.
+ * @param depth The current recursion depth.
+ * @return True if the ray hits an object, false otherwise.
+ */
 bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
     HitRecord temp_rec;
     bool hit_anything = false;
     double closest_so_far = t_max;
     int numOfNotReachingLights = 0;
 
+    // Check for intersections with all objects in the world
     for (const auto& object : objects) 
     {
         if (object->hit(r, t_min, closest_so_far, temp_rec)) 
@@ -26,6 +49,7 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
             closest_so_far = temp_rec.t;
         }
     }
+    
     // Lambertian shading (replace this with your shading model)
     vec3 diffuse_colour = temp_rec.material.getDiffuseColor();
     vec3 ambient_part = diffuse_colour;
@@ -39,12 +63,9 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
     vec3 diffuse_part ;
     vec3 specular_part ; 
     vec3 light ;
-    // Include the recursive call for reflections
-    
         
 
-    // Combine specular reflection with shading
-    //collected_colour += phongRayShading();
+    // Compute shading for each light source
     for (const auto& lightSource : lightSources)
     {
         HitRecord temp_rec_shading;
@@ -85,12 +106,10 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
     if (depth == 0) {numSamples = 15;}
     else if (depth < 2) {numSamples = 2;}
     else            {numSamples = 1;}
-    // In your hit function:
+    
+    // Handle reflections recursively
     if (depth < maxBounces) {
-        // Declare stddev and generator outside the loop
-        //double stddev = 0.1; // Adjust this value as needed
-        //std::default_random_engine generator;
-
+        
         for (int i = 0; i < numSamples; ++i) {
             // Sample random direction on the hemispherendom_double
             Ray reflected_ray = compute_reflected_ray(r, temp_rec);
@@ -113,9 +132,7 @@ bool World::hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth) {
                 Ray reflected_ray = compute_reflected_ray(r, temp_rec);
                 reflected_ray.setColor(vec3(0,0,0));
                 reflected_ray.setDirection(sampledDirection);
-            // Create a ray in the sampled direction
 
-            // Recursive call to trace the sampled ray
                 HitRecord sampledRec;
                 if (hit(reflected_ray, t_min, t_max, sampledRec, depth + 1)) {
                     double dotPrd = std::max(0.0, vec3::dot(temp_rec.normal, (-1) * sampledRec.normal));
@@ -143,8 +160,13 @@ double random_doubleW(double min, double max) {
     static std::mt19937 generator;  // Mersenne Twister PRNG
     return distribution(generator);
 }
-// Function to generate a random unit vector
-//vec3 World::randomUnitVector(std::default_random_engine& generator) {
+
+
+// Generates a random unit vector around a normal.
+/**
+ * @param normal The normal vector.
+ * @return A random unit vector.
+ */
 vec3 World::randomUnitVector(const vec3& normal) {
     double x=  random_doubleW(0.0, 1.0);
     double y = random_doubleW(0.0, 1.0);
@@ -166,6 +188,10 @@ vec3 World::randomUnitVector(const vec3& normal) {
 }
 
 
+// Creates and adds a light source from JSON input.
+/**
+ * @param jsonInput The JSON object containing light source data.
+ */
 void World::createAndLight(const nlohmann::json& jsonInput){    
     
     vec3 position = vec3(jsonInput["position"][0],
@@ -182,6 +208,11 @@ void World::createAndLight(const nlohmann::json& jsonInput){
     //World::addHittable(std::make_shared<Sphere>(newSphere));
 }
 
+// Creates and adds a sphere to the world from JSON input.
+/**
+ * @param jsonInput The JSON object containing sphere data.
+ * @param pathToTextures The path to the texture files.
+ */
 void World::createAndAddSphere(const nlohmann::json& jsonInput, const std::string& pathToTextures){    
     #ifdef _WIN32
     std::string os_sep = "\\";
@@ -210,6 +241,11 @@ void World::createAndAddSphere(const nlohmann::json& jsonInput, const std::strin
     World::addHittable(std::make_shared<Sphere>(newSphere));
 }
 
+// Creates and adds a triangle to the world from JSON input.
+/**
+ * @param jsonInput The JSON object containing triangle data.
+ * @param pathToTextures The path to the texture files.
+ */
 void World::createAndAddTriangle(const nlohmann::json& jsonInput, const std::string& pathToTextures)//vec3 vertex1, vec3 vertex2, vec3 vertex3)
 {
     #ifdef _WIN32
@@ -249,6 +285,12 @@ void World::createAndAddTriangle(const nlohmann::json& jsonInput, const std::str
     World::addHittable(std::make_shared<Triangle>(newTriangle));
 }
 
+// Creates and adds a triangle to the world from vertices.
+/**
+ * @param vertex1 The first vertex of the triangle.
+ * @param vertex2 The second vertex of the triangle.
+ * @param vertex3 The third vertex of the triangle.
+ */
 void World::createAndAddTriangle(vec3 vertex1, vec3 vertex2, vec3 vertex3)
 {    Triangle newTriangle(vertex1,
                           vertex2,
@@ -256,6 +298,11 @@ void World::createAndAddTriangle(vec3 vertex1, vec3 vertex2, vec3 vertex3)
     World::addHittable(std::make_shared<Triangle>(newTriangle));
 }
 
+// Creates and adds a cylinder to the world from JSON input.
+/**
+ * @param jsonInput The JSON object containing cylinder data.
+ * @param pathToTextures The path to the texture files.
+ */
 void World::createAndAddCylinder(const nlohmann::json& jsonInput, const std::string& pathToTextures)//vec3 bottomCenter, double radius, double height, vec3 normalVector)
 {
     #ifdef _WIN32
@@ -309,6 +356,11 @@ void World::createAndAddCylinder(const nlohmann::json& jsonInput, const std::str
     World::addHittable(std::make_shared<Circle>(bottomCircle));
 }
 
+// Creates and adds a floor to the world.
+/**
+ * @param floorCenter The center of the floor.
+ * @param floorSize The size of the floor.
+ */
 void World::createAndAddFloor(vec3 floorCenter, double floorSize){
 
     double halfSize = floorSize/2;
@@ -321,17 +373,23 @@ void World::createAndAddFloor(vec3 floorCenter, double floorSize){
 }
 
 
+// Clears the objects and light sources in the world and loads a new scene.
+/**
+ * @param filename The file path to the scene JSON file.
+ * @param camera The camera object to configure.
+ * @param pathToTextures The path to the texture files.
+ */
 void World::loadScene(const std::string& filename, Camera& camera, const std::string& pathToTextures) {
     
     std::ifstream file(filename);
     nlohmann::json sceneJson;
     file >> sceneJson;
 
-    // Extract camera information
+    // Clear existing objects and light sources
     objects.clear();
     lightSources.clear();
     
-    
+    // Set the maximum number of bounces for reflections
     if (sceneJson.contains("nbounces"))
     {
         maxBounces = int(sceneJson["nbounces"]);
@@ -341,6 +399,7 @@ void World::loadScene(const std::string& filename, Camera& camera, const std::st
     }
 
     std::cout << maxBounces <<std::endl;
+    
     // Extract world information
     const nlohmann::json& sceneInfo = sceneJson["scene"];
     //world.setBackgroundColor(sceneInfo["backgroundcolor"]);
@@ -349,9 +408,11 @@ void World::loadScene(const std::string& filename, Camera& camera, const std::st
                            sceneInfo["backgroundcolor"][2]);
 
 
+    // Configure the camera
     camera.setupFromJson(sceneJson["camera"], sceneJson["rendermode"], background);
     camPtr = &camera;
-    // Extract shapes information
+    
+    // Extract shapes information and add them to the world
     const nlohmann::json& shapesInfo = sceneInfo["shapes"];
     for (const auto& shapeInfo : shapesInfo) {
         std::string type = shapeInfo["type"];
@@ -362,16 +423,17 @@ void World::loadScene(const std::string& filename, Camera& camera, const std::st
         } else if (type == "triangle") {
             createAndAddTriangle(shapeInfo, pathToTextures);
         }
-        // Add more shape types as needed
+        // More shape types can be added here once implemented
     }
 
+    // Extract light sources and add them to the world
     if (sceneInfo.contains("lightsources")) {
         const nlohmann::json& lightsInfo = sceneInfo["lightsources"];
         for (const auto& lightInfo : lightsInfo) {
             std::string type = lightInfo["type"];
             if (type == "pointlight") {
                 createAndLight(lightInfo);
-            // Add more shape types as needed
+            // More light types can be added here once implemented
             }
         }
     }

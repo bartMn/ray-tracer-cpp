@@ -1,5 +1,10 @@
 #include "combine_ppms.h"
 
+// Combines multiple PPM images vertically into a single PPM image.
+/**
+ * @param imageNames A vector of file paths to the PPM images to combine.
+ * @param outputFileName The file path for the combined output PPM image.
+ */
 void combineImagesVertically(const std::vector<std::string>& imageNames, const std::string& outputFileName) {
     // Vector to store image data
     std::vector<std::vector<std::vector<int>>> imageData;
@@ -49,8 +54,8 @@ void combineImagesVertically(const std::vector<std::string>& imageNames, const s
     int maxWidth = imageData[0][0].size();
 
     for (const auto& image : imageData) {
-        totalHeight += image.size();
-        maxWidth = std::max(maxWidth, static_cast<int>(image[0].size()));
+        totalHeight += image.size(); // Accumulate the total height
+        maxWidth = std::max(maxWidth, static_cast<int>(image[0].size())); // Track the maximum width
     }
 
     // Create the combined image
@@ -60,8 +65,10 @@ void combineImagesVertically(const std::vector<std::string>& imageNames, const s
         exit(EXIT_FAILURE);
     }
 
+    // Write the PPM header for the combined image
     outputFile << "P3\n" << maxWidth / 3 << " " << totalHeight << "\n255\n";
 
+    // Write the pixel data for the combined image
     for (const auto& image : imageData) {
         for (const auto& row : image) {
             for (const auto& pixel : row) {

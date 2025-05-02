@@ -1,19 +1,26 @@
+#ifndef TEXTURE_H
+#define TEXTURE_H
+
 #include <vector>
 #include <string>
 #include "vector.h"
 
-// Define a simple texture class
+/**
+ * @class Texture
+ * @brief Represents a texture that can be applied to materials.
+ */
 class Texture {
 public:
-    Texture() {}
-    Texture(std::string texturePath){ loadPPM(texturePath); }
+    Texture() {} // Default constructor.
+    Texture(std::string texturePath) { loadPPM(texturePath); } // Constructor that loads a texture.
 
-    // Function to get the color at specific texture coordinates
-    vec3 getColor(float u, float v) const;
-    bool loadPPM(const std::string& filename);
+    vec3 getColor(float u, float v) const; // Gets the color at specific texture coordinates.
+    bool loadPPM(const std::string& filename); // Loads a texture from a PPM file.
 
 private:
-    std::vector<unsigned char> image_;
-    int width_;
-    int height_;
+    std::vector<unsigned char> image_; // The texture image data.
+    int width_;  // Texture width.
+    int height_; // Texture height.
 };
+
+#endif // TEXTURE_H
