@@ -4,7 +4,12 @@
 #include <vector>
 #include <string>
 
-    // Function to get the color at specific texture coordinates
+// Gets the color at specific texture coordinates.
+/**
+ * @param u The U coordinate (horizontal) in the texture.
+ * @param v The V coordinate (vertical) in the texture.
+ * @return The color at the specified texture coordinates as a vec3 (RGB).
+ */
 vec3 Texture::getColor(float u, float v) const {
     int x = static_cast<int>(u * width_) % width_;
     int y = static_cast<int>(v * height_) % height_;
@@ -17,8 +22,11 @@ vec3 Texture::getColor(float u, float v) const {
     return vec3(r, g, b);
 }
 
-
-// Function to load a PPM file
+// Loads a texture from a PPM file.
+/**
+ * @param filename The file path to the PPM texture file.
+ * @return True if the texture was successfully loaded, false otherwise.
+ */
 bool Texture::loadPPM(const std::string& filename) {
     std::ifstream file(filename, std::ios::binary);
     if (!file.is_open()) {

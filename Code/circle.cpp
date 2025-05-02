@@ -1,18 +1,29 @@
-// In your cpp file, say Circle.cpp
 #include "circle.h"
 
-Circle::Circle(const vec3& center, double radius, const vec3& normal, double cylinderHeight){
-    this-> center= center;
-    this-> radius = radius;
-    this-> normal = const_cast<vec3&>(normal).return_unit();
+// Constructor: Initializes a circle with center, radius, normal, and cylinder height.
+/**
+ * @param center The center of the circle.
+ * @param radius The radius of the circle.
+ * @param normal The normal vector of the circle.
+ * @param cylinderHeight The height of the cylinder the circle is part of.
+ */
+Circle::Circle(const vec3& center, double radius, const vec3& normal, double cylinderHeight) {
+    this->center = center;
+    this->radius = radius;
+    this->normal = const_cast<vec3&>(normal).return_unit();
     this->textureIsSet = false;
     this->cylinderHeight = cylinderHeight;
 }
 
+// Checks for a grid-based intersection with the circle.
+/**
+ * @param r The ray to test.
+ * @param t_min The minimum t value for a valid hit.
+ * @param t_max The maximum t value for a valid hit.
+ * @param rec The record to store hit information.
+ * @return True if the ray intersects the grid, false otherwise.
+ */
 bool Circle::gridHit(const Ray& r, double t_min, double t_max, HitRecord& rec) const {
-    // Assuming a 1x1x1 grid for simplicity
-    // You should modify this for a more sophisticated grid structure
-
     double t0 = std::numeric_limits<double>::lowest();
     double t1 = std::numeric_limits<double>::max();
 
@@ -31,11 +42,16 @@ bool Circle::gridHit(const Ray& r, double t_min, double t_max, HitRecord& rec) c
     return true;
 }
 
+// Checks for a ray-bounding box intersection.
+/**
+ * @param r The ray to test.
+ * @param t0 The minimum t value for a valid hit.
+ * @param t1 The maximum t value for a valid hit.
+ * @return True if the ray intersects the bounding box, false otherwise.
+ */
 bool Circle::hitBoundingBox(const Ray& r, double& t0, double& t1) const {
-    // Assuming a simple bounding box for each cylinder
-    // You may need to adjust this based on your cylinder's orientation
-    vec3 min = (center - 0.5*cylinderHeight*normal) - vec3(radius, cylinderHeight / 2, radius);
-    vec3 max = (center - 0.5*cylinderHeight*normal) + vec3(radius, cylinderHeight / 2, radius);
+    vec3 min = (center - 0.5 * cylinderHeight * normal) - vec3(radius, cylinderHeight / 2, radius);
+    vec3 max = (center - 0.5 * cylinderHeight * normal) + vec3(radius, cylinderHeight / 2, radius);
 
     double min_arr[] = {min.x, min.y, min.z};
     double max_arr[] = {max.x, max.y, max.z};
@@ -62,11 +78,17 @@ bool Circle::hitBoundingBox(const Ray& r, double& t0, double& t1) const {
     return true;
 }
 
+// Checks for a ray-circle intersection.
+/**
+ * @param r The ray to test.
+ * @param t_min The minimum t value for a valid hit.
+ * @param t_max The maximum t value for a valid hit.
+ * @param rec The record to store hit information.
+ * @return True if the ray intersects the circle, false otherwise.
+ */
 bool Circle::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const {
-    // Check if the ray is parallel to the circle's normal
-    
     if (!gridHit(r, t_min, t_max, rec)) return false;
-    
+
     double denom = vec3::dot(r.getDirection(), normal);
     if (std::abs(denom) < 1e-6) {
         return false;
@@ -89,9 +111,9 @@ bool Circle::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const
         rec.t = t;
         rec.p = intersection_point;
         rec.normal = normal;
-        rec.material = this-> material;
+        rec.material = this->material;
 
-        if (textureIsSet){
+        if (textureIsSet) {
             double u = 0.5 + atan2(normal.z, normal.x) / (2 * 3.14);
             double v = 0.5 - asin(normal.y) / 3.14;
             rec.material.setDiffuseColor(material.getTexture(u, v));
@@ -103,10 +125,18 @@ bool Circle::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const
     return false;
 }
 
-void Circle::setMaterial(Material material){
-    this ->material = material;
+// Sets the material of the circle.
+/**
+ * @param material The material to set.
+ */
+void Circle::setMaterial(Material material) {
+    this->material = material;
 }
 
+// Sets the texture of the circle.
+/**
+ * @param texturePath The file path to the texture.
+ */
 void Circle::setTexture(const std::string& texturePath) {
     this->material.setTexture(texturePath);
     this->textureIsSet = true;

@@ -1,4 +1,3 @@
-// In your header file, say world.h
 #ifndef WORLD_H
 #define WORLD_H
 
@@ -19,39 +18,43 @@
 
 class Camera;
 
+/**
+ * @class World
+ * @brief Represents the 3D world containing objects and light sources.
+ */
 class World {
 public:
-    World() {}
+    World() {} // Default constructor.
 
     void addHittable(std::shared_ptr<Hittable> hittable) {
         objects.push_back(hittable);
     }
+// Adds a hittable object to the world.
+void addLightSource(std::shared_ptr<Sphere> hittable) {
+    lightSources.push_back(hittable);
+}
+// Adds a light source to the world.
 
-    void addLightSource(std::shared_ptr<Sphere> hittable) {
-        lightSources.push_back(hittable);
-    }
+    void createAndLight(const nlohmann::json& jsonInput); // Creates and adds light sources from JSON input.
+    void createAndAddTriangle(const nlohmann::json& jsonInput, const std::string& pathToTextures); // Adds a triangle from JSON input.
+    void createAndAddTriangle(vec3 vertex1, vec3 vertex2, vec3 vertex3); // Adds a triangle from vertices.
+    void createAndAddSphere(const nlohmann::json& jsonInput, const std::string& pathToTextures); // Adds a sphere from JSON input.
+    void createAndAddCylinder(const nlohmann::json& jsonInput, const std::string& pathToTextures); // Adds a cylinder from JSON input.
+    void createAndAddFloor(vec3 floorCenter, double floorSize); // Adds a floor to the world.
+    void loadScene(const std::string& filename, Camera& camera, const std::string& pathToTextures); // Loads a scene from a file.
 
-    void createAndLight(const nlohmann::json& jsonInput);
-    void createAndAddTriangle(const nlohmann::json& jsonInput, const std::string& pathToTextures);
-    void createAndAddTriangle(vec3 vertex1, vec3 vertex2, vec3 vertex3);
-    void createAndAddSphere(const nlohmann::json& jsonInput, const std::string& pathToTextures);    
-    void createAndAddCylinder(const nlohmann::json& jsonInput, const std::string& pathToTextures);
-    void createAndAddFloor(vec3 floorCenter, double floorSize);
-    void loadScene(const std::string& filename, Camera& camera, const std::string& pathToTextures);
+    bool hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth); // Checks for ray-object intersections.
 
-    bool hit(Ray& r, double t_min, double t_max, HitRecord& rec, int depth);
+    Ray compute_reflected_ray(Ray& r, HitRecord& rec); // Computes the reflected ray.
 
-    Ray compute_reflected_ray(Ray& r, HitRecord& rec);
-
-    vec3 reflect(const vec3& v, const vec3& normal);
-    //vec3 sampleGaussian(const vec3& mean, double stddev, std::default_random_engine& generator);
-    vec3 randomUnitVector(const vec3& normal);
+    vec3 reflect(const vec3& v, const vec3& normal); // Reflects a vector around a normal.
+    vec3 randomUnitVector(const vec3& normal); // Generates a random unit vector around a normal.
 
 private:
-    std::vector<std::shared_ptr<Hittable>> objects;
-    std::vector<std::shared_ptr<Sphere>> lightSources;
-    Camera *camPtr;
-    int maxBounces;
+    std::vector<std::shared_ptr<Hittable>> objects; // List of objects in the world.
+    std::vector<std::shared_ptr<Sphere>> lightSources; // List of light sources in the world.
+    Camera *camPtr; // Pointer to the camera.
+    int maxBounces; // Maximum number of ray bounces.
 };
 
 #endif // WORLD_H

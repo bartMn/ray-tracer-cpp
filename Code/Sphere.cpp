@@ -1,8 +1,14 @@
-// In your cpp file, say Sphere.cpp
 #include "Sphere.h"
 
-bool Sphere::gridHit(const Ray& r, double t_min, double t_max, HitRecord& rec) const{
-
+// Checks for a grid-based intersection with the sphere.
+/**
+ * @param r The ray to test.
+ * @param t_min The minimum t value for a valid hit.
+ * @param t_max The maximum t value for a valid hit.
+ * @param rec The record to store hit information.
+ * @return True if the ray intersects the grid, false otherwise.
+ */
+bool Sphere::gridHit(const Ray& r, double t_min, double t_max, HitRecord& rec) const {
     double t0 = std::numeric_limits<double>::lowest();
     double t1 = std::numeric_limits<double>::max();
     if (!hitBoundingBox(r, t0, t1))
@@ -16,13 +22,17 @@ bool Sphere::gridHit(const Ray& r, double t_min, double t_max, HitRecord& rec) c
     if (t0 >= t1)
         return false;
 
-    // Check for intersection with the sphere
-
     return true;
 }
 
-bool Sphere::hitBoundingBox(const Ray& r, double t0, double t1) const{
-    // Assuming a simple bounding box for each sphere
+// Checks for a ray-bounding box intersection.
+/**
+ * @param r The ray to test.
+ * @param t0 The minimum t value for a valid hit.
+ * @param t1 The maximum t value for a valid hit.
+ * @return True if the ray intersects the bounding box, false otherwise.
+ */
+bool Sphere::hitBoundingBox(const Ray& r, double t0, double t1) const {
     vec3 center_min = center - vec3(radius, radius, radius);
     vec3 center_max = center + vec3(radius, radius, radius);
 
@@ -51,8 +61,15 @@ bool Sphere::hitBoundingBox(const Ray& r, double t0, double t1) const{
     return true;
 }
 
+// Checks for a ray-sphere intersection.
+/**
+ * @param r The ray to test.
+ * @param t_min The minimum t value for a valid hit.
+ * @param t_max The maximum t value for a valid hit.
+ * @param rec The record to store hit information.
+ * @return True if the ray intersects the sphere, false otherwise.
+ */
 bool Sphere::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const {
-    
     if (!gridHit(r, t_min, t_max, rec)) return false;
 
     vec3 oc = r.getOrigin() - center;
@@ -64,7 +81,7 @@ bool Sphere::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const
     if (discriminant > 0) {
         double temp = (-b - sqrt(discriminant)) / a;
         if (temp < t_max && temp > t_min) {
-            rec.material = this-> material;
+            rec.material = this->material;
             rec.t = temp;
             rec.p = r.pointAtParameter(rec.t);
             rec.normal = (rec.p - center) / radius;
@@ -72,14 +89,14 @@ bool Sphere::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const
             if (textureIsSet) {
                 double u = 0.5 + atan2(rec.normal.z, rec.normal.x) / (2 * 3.14);
                 double v = 0.5 - asin(rec.normal.y) / 3.14;
-                rec.material.setDiffuseColor(material.getTexture(u, v)); // You need to implement texture sampling
+                rec.material.setDiffuseColor(material.getTexture(u, v));
             }
             rec.normal.return_unit();
             return true;
         }
         temp = (-b + sqrt(discriminant)) / a;
         if (temp < t_max && temp > t_min) {
-            rec.material = this-> material;
+            rec.material = this->material;
             rec.t = temp;
             rec.p = r.pointAtParameter(rec.t);
             rec.normal = (rec.p - center) / radius;
@@ -87,7 +104,7 @@ bool Sphere::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const
             if (textureIsSet) {
                 double u = 0.5 + atan2(rec.normal.z, rec.normal.x) / (2 * 3.14);
                 double v = 0.5 - asin(rec.normal.y) / 3.14;
-                rec.material.setDiffuseColor(material.getTexture(u, v)); // You need to implement texture sampling
+                rec.material.setDiffuseColor(material.getTexture(u, v));
             }
             rec.normal.return_unit();
             return true;
@@ -96,25 +113,43 @@ bool Sphere::hit(const Ray& r, double t_min, double t_max, HitRecord& rec) const
     return false;
 }
 
-void Sphere::setMaterial(Material material){
-    this ->material = material;
+// Sets the material of the sphere.
+/**
+ * @param material The material to set.
+ */
+void Sphere::setMaterial(Material material) {
+    this->material = material;
 }
 
-void Sphere::setLightColour(vec3 lightCol){
+// Sets the light color of the sphere.
+/**
+ * @param lightCol The light color to set.
+ */
+void Sphere::setLightColour(vec3 lightCol) {
     this->ligthColour = lightCol;
 }
 
-vec3 Sphere::getLightColour(){
+// Gets the light color of the sphere.
+/**
+ * @return The light color of the sphere.
+ */
+vec3 Sphere::getLightColour() {
     return ligthColour;
 }
 
-vec3 Sphere::getPosition(){
+// Gets the position of the sphere.
+/**
+ * @return The center position of the sphere.
+ */
+vec3 Sphere::getPosition() {
     return center;
 }
 
+// Sets the texture of the sphere.
+/**
+ * @param texturePath The file path to the texture.
+ */
 void Sphere::setTexture(const std::string& texturePath) {
     this->material.setTexture(texturePath);
     this->textureIsSet = true;
 }
-
-
